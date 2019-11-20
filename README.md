@@ -120,13 +120,26 @@ more than a single predicate test. If you only want matching items, it
 wastes performance collecting things that don't match, and just throwing
 them away.
 
-## *-each
+## *-each / *-all
+
+e.g. `change-each`
 
 ## *-while
 
+e.g. `take-while`
+
 ## collect-*
 
-## min/max
+## count
+
+
+## min/max (find/pick/take + /part)
+
+`/part` needs to have standard meaning, but then what do you call the
+refinement that lets you "take the 3 highest values"? Or is the 
+multi/count part another HOF? You could do the same thing with `collect`
+which maps to the concept of `parse` min/max counts (different from
+min/max value in a series).
 
 
 ## aggregators
