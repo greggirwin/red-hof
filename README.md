@@ -63,6 +63,11 @@ store every data point and calc when queried.
 - filter/partition   up to one result for each value, but may be less
 - accumulate/fold    one aggregate result
 
+`Map` is a tricky name, since we have a `map!` type.
+
+I like `partition` as a name, but it may mean a performance hit if
+the implementation is kept simple.
+
 
 # Goals and Design Decisions
 
@@ -82,6 +87,22 @@ Red does not have tail call optimization, so recursion probably won't
 be used in implementations. 
 
 ## General dialect thoughts
+
+I (Gregg) haven't gone down a particular path yet, but want to. That
+path being the same that led to `round`, Rebol's `split`, and the new
+`loop` proposal. What you have in those ideas is a single entry point
+to a domain. It works well in my mind, but is quite different from
+having many single-purpose functions. 
+
+There are two ways to address that: split functionality internally,
+exposing targeted funcs; or wrap the dialected func. e.g. `ceil`
+wraps `round/ceiling`. With `round`, the original mezz implementation
+was tiny, and handled all types, so splitting didn't make sense. With
+`split` I can see delegating based on the input spec as a possibility.
+
+How that applies to HOFs I don't know yet. I don't think there's a
+`HOF` generic entry point, but maybe there is.
+
 
 
 # Contexts and Functions
@@ -117,3 +138,4 @@ infinite in number. You should be able to read the state, based on
 inputs seen so far, and even reactively connect that to other aggregators
 or functions/consumers (see functional reactive programming). 
 
+Aggregated partitioning is something to consider.
