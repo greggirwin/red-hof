@@ -23,12 +23,46 @@ experimental and thinking out loud.)
 
 # Use Cases
 
+- Spreadsheets/Dataflow
+- Data Science
+- FP
+- FRP
+
+For Red programmers we may think of the basic functions, and 
+next the FP use cases. FRP moves up the abstraction ladder a
+bit, in how it's been marketed, but the real value comes at
+the highest levels: spreadsheets and data science. This applies
+to aspects of time series and column store data models as well.
+
+
+## Basic versus advanced
+
+I like simple solutions for simple needs. e.g. the current `sum`
+and `average` funcs in Red (mezzanines) are just fine for most
+things. But a more extensible model may prove useful, given the
+right interface. The target audience is key to driving the design.
+
+## Flat lists
+
+## Tree/graph processing
+
+## Aggregators
+
+There is an older use case that drove aggregators for me, as an
+experiment: DTrace. The ability to collect a lot of information
+efficiently, which can then be queried, in the context of long-
+running data acquisition, rather than an on-demand calc. That is,
+if you have millions of data points, func calls, profiling info,
+etc. but only care about the final result, you don't need to 
+store every data point and calc when queried.
+
 
 # Standard HOFs
 
-- map              one result for each value
-- filter/partition up to one result for each value, but may be less
-- accumulate/fold  one aggregate result
+- map/transform      one result for each value
+- filter/partition   up to one result for each value, but may be less
+- accumulate/fold    one aggregate result
+
 
 # Goals and Design Decisions
 
