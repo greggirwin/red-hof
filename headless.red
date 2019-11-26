@@ -8,7 +8,7 @@ headless: function [code] [
 	~: :system/words
 	do bind code context [
 		each: function ['spec [block! word!] data [series!]] [
-			if word? spec [spec: reduce [spec]]
+			spec: compose [(spec)]
 			ctx: context collect [
 				foreach w spec [keep to set-word! w] keep none
 			]
