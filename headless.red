@@ -49,6 +49,8 @@ headless: function [code] [
 		]
 
 		keep: handler [first partition :source code]
+
+		test: handler [all map :source code]
 	]
 ]
 
@@ -66,6 +68,10 @@ headless: function [code] [
 >> headless [probe take each x s: [1 2 3] [odd? x]  s]
 [1 3]
 == [2]
+>> headless [test each [x y] s: [1 2 3 4 5 6] [x + y < 10]]
+== none
+>> headless [test each [x y] s: [1 2 3 4 5 6] [x + y < 20]]
+== true
 
 >> more: headless [each x s: [1 2 3]]
 >> more
