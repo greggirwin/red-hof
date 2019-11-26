@@ -12,8 +12,9 @@ headless: function [code] [
 			ctx: context collect [
 				foreach w spec [keep to set-word! w] keep none
 			]
-			func [/context] compose/deep/only bind [
+			func [/context /step] compose/deep/only bind [
 				if context [return (ctx)]
+				if step [return (length? spec)]
 				unless empty? d [
 					set (ctx) d
 					also d d: skip d (length? spec)
@@ -30,9 +31,10 @@ headless: function [code] [
 
 		for: handler [while [source] code]
 
+		;) funcs that affect next result of the iterator are the worst
 		take: handler [
 			; while [pos: source] [if do code [~/remove pos]]
-			collect [while [p: source] [if do code [keep ~/take p]]]
+			collect [while [p: source] [if do code [keep ~/take/part p source/step]]]
 		]
 
 		map: handler [
@@ -42,7 +44,7 @@ headless: function [code] [
 		partition: handler [
 			also r: copy/deep [[][]]
 			while [p: source] [
-				append pick r make logic! do code :p/1
+				append/part pick r make logic! do code p source/step
 			]
 		]
 
