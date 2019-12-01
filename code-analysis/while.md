@@ -33,6 +33,7 @@ This functionality supposedly may include, in the order of importance:
 - preliminary filtering of input data (simple - by value; or advanced - by parse pattern)
 - allowing /reverse refinement for `-each` funcs
 - introducing `-while` HOFs
+- support graphs as input
 - support ports as input
 - forcing step size to 1, regardless of the spec length
 
