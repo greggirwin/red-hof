@@ -16,7 +16,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
     head series
 ```
 
-
+---
 - from `replace` func:
 - why does it use remove/insert rather than change? wicked...
 - side note: replace doesn't have /same - should it?
@@ -49,6 +49,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
     while [spot: find spot block!] [change spot func [new args] first spot] 
 ```
 
+---
 - same
 ```
     while [tmp: find tmp block!] [
@@ -70,7 +71,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 ```
 
 
-
+---
 - filtered: skips a row if 1st item is none
 - `map-parse/self [copy xs cols skip] buffer [... result or xs]`
 ```
@@ -86,7 +87,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 	buffer: head buffer
 ```
 
-
+---
 - skips by `cols`, excludes `result`
 - `map-parse/self [copy xs cols skip] buffer [if result = xs [continue] xs]`
 ```
@@ -99,7 +100,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 	buffer: head buffer
 ```
 
-
+---
 - `replace/all mark #{C2A0} #{20}`
 - `map-parse/self [#{C2A0}] mark [#{20}]`
 ```
@@ -107,7 +108,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 		change/part mark #{20} 2
 	]
 ```
-
+---
 - `map-each/self [p: x] mark [...]`
 ```
 	while [mark: invalid-utf? mark] [
@@ -115,7 +116,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 	]
 ```
 
-
+---
 - `map-each/self x rule [...x or new block of 2 items]`
 ```
 	while [not tail? rule] [
@@ -126,7 +127,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 	]
 ```
 
-
+---
 - `map-each/self [x _] [reduce [to word! x _]]`
 ```
 	while [not tail? list][
@@ -146,7 +147,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 	]
 ```
 
-
+---
 - `map-each tk tokens [ any [do select... [] tk] ]`
 ```
     while [not tail? tokens] [
@@ -158,7 +159,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
     ]
 ```
 
-
+---
 - from `list-dir`/`ls`
 - side note: should `ellipsize` be a common mezz?
 - can be foreach with index:
@@ -179,7 +180,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 		prin lf
 	]
 ```
-
+---
 - `foreach x c [append pinstring get-pin-var ...]`
 - `append rejoin map-each x c [get-pin-var ...]`
 - `map-each/into x c [get-pin-var ...] pinstring`
@@ -189,7 +190,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
         c: next c
     ]
 ```
-
+---
 - `foreach f fields [...]`
 - `map-each/into f fields [... f] result`
 ```
@@ -223,7 +224,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 ```
 
 
-
+---
 - why not: `append blk map-each x split path "/" [reduce [form x x]]`
 ```
     while [not root] [
@@ -233,7 +234,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
     ] 
 ```
 
-
+---
 - `map-each [pos: tk] tokens [.. produces variable width output ..]`
 ```
     while [not tail? match-rule] [
@@ -249,7 +250,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
     ]
 ```
 
-
+---
 - fill a block of caller's refinements/arguments
 - `forparse [set ref refinement!] [repend r ...]`
 - `map-parse [set ref refinement!] [reduce [...]]`
@@ -265,13 +266,13 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 	]
 ```
 
-
+---
 - `map-each/into line port/sub-port [..] page`
 ```
 	while [(str: pick port/sub-port 1) <> ""] [append page reduce [str newline]] 
 ```
 
-
+---
 - detab
 - `map-each/self [:tab] x [...]`
 ```
@@ -286,8 +287,8 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 
 - interesting!
 - tricky map-each - groups items between separators
-- [ ... in ... in ... ] -> [ [...] has [...] has [...] ]
-- [term ['in repeat]] -> [[term] 'has ???] any way to visually specify the transform?
+- `[ ... in ... in ... ] -> [ [...] has [...] has [...] ]`
+- `[term ['in repeat]] -> [[term] 'has ???]` any way to visually specify the transform?
 ```
 	collect [
 		while [find selector 'in][
@@ -297,9 +298,9 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 		] keep/only copy selector
 	]
 ```
-
-- [ ... and ... and ... ] -> [ [...] [...] [...] ]
-- using morph DSL: morph [ (xs: copy []) :xs [x (x <> 'and) grp: x] -> grp :xs ? x ]
+---
+- `[ ... and ... and ... ] -> [ [...] [...] [...] ]`
+- using morph DSL: `morph [ (xs: copy []) :xs [x (x <> 'and) grp: x] -> grp :xs ? x ]`
 ```
 selectors: collect [
 	while [find selectors 'and][
@@ -309,13 +310,13 @@ selectors: collect [
 ]
 ```
 
-
+---
 - interesting case
 - foreach that decomposes each item(row)
-- foreach row data [set spec row [...]]
+- `foreach row data [set spec row [...]]`
 - how to do this without `set`?
-- foreach [[spec]] [...]  -- possible?
-- map-each/self [[spec]] [...]  -- should return [[result]] wrapped
+- `foreach [[spec]] [...]`  -- possible?
+- `map-each/self [[spec]] [...]`  -- should return `[[result]]` wrapped
 ```
     while [not tail? data][
         row: first data
