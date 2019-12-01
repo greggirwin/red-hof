@@ -45,6 +45,7 @@ You are welcome to add your versions, as I am most certainly biased by my own th
 - [MAP-EACH imitations](while/map-each.md)
 - [REMOVE-EACH imitations](while/map-each.md)
 - [FOR imitations](while/map-each.md)
+- [Tree navigation](while/trees.md)
 - [True, justified, WHILE loops](while/true-while.md)
 - [Unclassified while-find](while/while-find.md)
 - [Unclassified while-not-empty](while/while-not-empty.md)
