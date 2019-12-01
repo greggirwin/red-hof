@@ -64,7 +64,7 @@ Loops were found to be **distributed** as follows:
 - map-each: 0.8% (small number to it being rarely available)
 - for: 0.6% (too old school, but makes perfect sense where the size is fixed, e.g. a chess board or matrices)
 
-**So far**, I've only analyzed the WHILE loop. See the respective page. I tried not to include any duplicates or very similar constructs, but some may have slipped through.
+**So far**, I've only analyzed the WHILE loop. See the [respective page](while.md). I tried not to include any duplicates or very similar constructs, but some may have slipped through.
 
 **I plan** to also analyze UNTIL thouroughly.
 
