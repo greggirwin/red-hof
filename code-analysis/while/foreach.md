@@ -7,6 +7,7 @@
 - `forparse [reactor skip reaction skip] [return yes] no`
 - `foreach [x _ y _ /where all [x = reactor y = :reaction]] [return yes] no`
 - `not empty? filter queue [x _ y _] [all [x = reactor y = :reaction]]`
+- `not empty? sift queue [1 - - - .. 1 = (reactor) and 3 = (reaction)]`
 ```
     pending?: function [reactor [object!] reaction [block! function!]][
         q: queue
@@ -24,6 +25,7 @@
 - `foreach/same [:reactor word reaction targets] relations [...]`
 - `foreach [r word reaction targets /where r =? reactor] relations [...]`
 - `foreach [_ word reaction targets] filter relations [r _ _ _] [r =? reactor] [...]`
+- `foreach [word reaction targets] sift relations [- 2 3 4 .. 1 =? reactor] [...]`
 ```
     pos: relations
     while [pos: find/same/skip pos reactor 4][
@@ -40,6 +42,7 @@
 - `foreach [pos: _ _ reaction :field] [if reactor =? context? :pos/4 [return reaction]]`
 - `field: in reactor field  foreach/same [_ _ reaction :field] [return reaction]`
 - `field: in reactor field  foreach [_ _ reaction f /where f =? field] [return reaction]`
+- `first sift relations [- - 3 - .. 4 =? (in reactor field)]`
 ```
     pos: skip relations 3
     while [pos: find/skip pos field 4][
@@ -52,6 +55,7 @@
 - same; workarounds:
 - `foreach/same [:reactor :field reaction _] [return :reaction]`
 - ...
+- `first sift relations [- - 3 - .. 1 =? (reactor) and 2 = (field)]`
 ```
     pos: relations
     while [pos: find/same/skip pos reactor 4][
@@ -62,7 +66,7 @@
 
 ---
 - from `check-cfg` of GUI console:
-- iter is a block [set-word: value ...]
+- iter is a block `[set-word: value ...]`
 - joins options from config and default config
 - it's interesting because it replaces invalid lines, and adds those not found
 - a single remove-each won't handle it
@@ -112,8 +116,8 @@
 ---
 - `foreach with step=1, and 2 items + index known at once, advancing by 1 or 2`
 - `foreach/skip [p: x y] spec [... advance ...] 1` -- bad to have skip after code
+- `foreach/stride [p: x y] spec [... advance ...]`
 - `crawl [p: x y] spec [... advance ...]`
-- `stride [p: x y] spec [... advance ...]`
 - why `global?` and not `break`?
 ```
     while [all [global? not tail? spec]][           ;-- process wrapping panel options
@@ -133,6 +137,8 @@
 
 ---
 - foreach with step=1 and 2 items at once
+- `foreach/stride [a b] points [...]`
+- `crawl [a b] points [...]`
 ```
     while [1 < length? points][
         either at-distance-from-line? event/offset points/1 points/2 3 [is-within?: true break][points: next points]
@@ -143,10 +149,11 @@
 ---
 - foreach with index
 - 2 rules are generated in parallel
-- [xxxxx xxxxx ..] -> [xxxxx (m: index?) | ] and [xxx (m: index?) | ..]
+- `[xxxxx xxxxx ..] -> [xxxxx (m: index?) | ..] and [xxx (m: index?) | ..]`
 - `map-each m list [p: ... compose [xxxxx (p) | ]]`
 - `map-each m list [p: ... compose [xxx (p) | ]]`
 - can we make it simple in one go? should we?
+- using morph DSL: `morph [:list m (i: index? list) month: m i pipe (m': copy/part m 3) mon: m' i pipe]` - roughly the whole loop
 ```
     list: system/locale/months
     while [not tail? list][
@@ -162,7 +169,8 @@
 ```
 
 ---
-- `foreach item args []`
+- `foreach item args [...]`
+- `foreach item sift args [any-word! and not set-word! or refinement!] [..]` -- prefiltered
 ```
     while [not tail? args] [
         item: first args 
@@ -282,6 +290,7 @@
 
 ---
 - `foreach/reverse [:figure] found [n: n + 1]`
+- actually, foreach/reverse shouldn't work like that, otherwise it will mostly be accompanied by `tail`, so:
 - `count/reverse found figure`
 - `count/part head found figure found`
 ```
@@ -302,6 +311,7 @@
 
 ---
 - `foreach face faces [..]`
+- `foreach face sift faces [object! /type = ('face)] [..]` -- could've worked if there was no error code
 ```
     while [not tail? faces][
         either all[
@@ -321,7 +331,7 @@
     ]
 ```
 ---
-- `foreach [val line _] white-pieces [...]`
+- `foreach [val line _] white-pieces [...]` - this however makes chars not strings
 ```
     while [all [not tail? white-pieces
                 not error-in-position ]] [
@@ -347,6 +357,7 @@
 - `foreach/reverse p out [if pair? p [...count blocks...]]`
 - `foreach/reverse [p [pair!]] out [...count blocks...]`
 - `forparse [set p pair!] reverse copy out [...] ??`
+- `foreach p sift out [-1 .. pair!] [..]`
 ```
     while [not zero? blocks] [
         if pair? out/1 [
@@ -360,6 +371,7 @@
 ---
 - `foreach [p: :elem] str1 [..]`
 - `foreach [p: x /where x = elem] str1 [..]`
+- `foreach [p: x] sift str1 [is (elem)] [..]`
 ```
     while [
         str1: find/tail str1 elem
@@ -375,7 +387,8 @@
 ```
 
 ---
-- map-each is not applicable, as we expect it to keep filtered out items as is
+- map-each is not directly applicable, as using it we would expect it to keep filtered out items as is
+- `map-each/into [p: _] sift found [is (lf)] [rejoin [lf index? p] lns/text`
 - `foreach [:lf] found [append lns/text ...]`
 - `keep-each/into [:lf] found [...] lns/text`
 ```
@@ -400,6 +413,7 @@
 ---
 - `foreach [:name y] base [append result y]`
 - `append result keep-each [:name y] base [y]`
+- `rejoin sift result [- 2 .. 1 = (name)]`
 ```
     while [not none? base: find/skip base name 2][
         insert tail result pick base 2
