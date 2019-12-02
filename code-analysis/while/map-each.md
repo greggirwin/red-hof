@@ -57,6 +57,18 @@ Interesting observation is that so far in-place maps are about as numerous as ma
     ]
 ```
 
+---
+- `map-each tk tokens [ any [do select... [] tk] ]`
+```
+    while [not tail? tokens] [
+        subst-word: do select substitutions first tokens
+        if any [subst-word] [
+            change tokens subst-word
+        ]
+        tokens: next tokens
+    ]
+```
+
 
 
 
@@ -145,18 +157,6 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 	rejoin collect [
 		while [not tail? values][keep form-value values]
 	]
-```
-
----
-- `map-each tk tokens [ any [do select... [] tk] ]`
-```
-    while [not tail? tokens] [
-        subst-word: do select substitutions first tokens
-        if any [subst-word] [
-            change tokens subst-word
-        ]
-        tokens: next tokens
-    ]
 ```
 
 ---
