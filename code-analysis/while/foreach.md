@@ -8,6 +8,7 @@
 - `foreach [x _ y _ /where all [x = reactor y = :reaction]] [return yes] no`
 - `not empty? filter queue [x _ y _] [all [x = reactor y = :reaction]]`
 - `not empty? sift queue [1 - - - .. 1 = (reactor) and 3 = (reaction)]`
+- `locate queue [[is (reactor)] - [is (reaction)] -]`
 ```
     pending?: function [reactor [object!] reaction [block! function!]][
         q: queue
@@ -43,6 +44,7 @@
 - `field: in reactor field  foreach/same [_ _ reaction :field] [return reaction]`
 - `field: in reactor field  foreach [_ _ reaction f /where f =? field] [return reaction]`
 - `first sift relations [- - 3 - .. 4 =? (in reactor field)]`
+- `third locate relations [- - - [same (in reactor field)]]`
 ```
     pos: skip relations 3
     while [pos: find/skip pos field 4][
@@ -56,6 +58,7 @@
 - `foreach/same [:reactor :field reaction _] [return :reaction]`
 - ...
 - `first sift relations [- - 3 - .. 1 =? (reactor) and 2 = (field)]`
+- `third locate [[is (reactor)] [is (field)] - -]`
 ```
     pos: relations
     while [pos: find/same/skip pos reactor 4][
