@@ -44,7 +44,7 @@ You are welcome to add your versions, as I am most certainly biased by my own th
 
 - [FOREACH imitations](while/foreach.md)
 - [MAP-EACH imitations](while/map-each.md)
-- [REMOVE-EACH imitations](while/map-each.md)
+- [REMOVE-EACH imitations](while/remove-each.md)
 - [FOR/LOOP/REPEAT imitations](while/for.md)
 - [Tree navigation](while/trees.md)
 - [True, justified, WHILE loops](while/true-while.md)
