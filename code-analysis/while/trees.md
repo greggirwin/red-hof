@@ -4,6 +4,8 @@ These can be solved by the `node!` datatype support.
 
 ---
 - tree: finding ascendant node with constraints
+- `foreach/reverse f face [all [in f 'style  f/style = 'window  break]]`
+- `locate/back face [/style = ('window)]`
 ```
     while [
         all [
@@ -18,7 +20,7 @@ These can be solved by the `node!` datatype support.
 ```
 
 ---
-- same
+- `foreach/reverse f face [all [res: func-act f break]]`
 ```
     while [all [not res face/parent-face]] [
         res: func-act face/parent-face 
@@ -27,7 +29,8 @@ These can be solved by the `node!` datatype support.
 ```
 
 ---
-- same
+- `foreach/reverse f face [any [f/show? break]]`
+- `locate/back face [not /show?]`
 ```
     while [all [face/show? face/parent-face]] [
         face: face/parent-face
@@ -37,6 +40,9 @@ These can be solved by the `node!` datatype support.
 ---
 - coordinate system translation on a tree
 - could be a sum of a parameter over a range of nodes
+- code is pretty naive: it could just calculate offset and add it to every coordinate later once
+- `offset: sum map-each/reverse f fp [if f/style = 'window [break] edge: .. edge + f/offset]` - then add offset to each t/l/r/b
+- `offset: accumulate/reverse 0x0 fp func [acc f][[if f/style = 'window [break] edge: ... acc + f/offset]]` - same, may be faster
 ```
     while [all [fp fp/style <> 'window]] [
         edge: any [all [in fp 'edge fp/edge fp/edge/size] 0x0] 
@@ -50,7 +56,7 @@ These can be solved by the `node!` datatype support.
 ```
 
 ---
-- same
+- same really
 ```
     while [face: face/parent-face][
         either face/parent-face [
@@ -70,7 +76,9 @@ These can be solved by the `node!` datatype support.
 ```
 
 ---
-- again
+- again, even simpler
+- `ofs: sum map-each/reverse f fc [if f = parent [break] f/offset]`
+- `ofs: accumulate/reverse 0x0 fc func [acc f] [if f = parent [break] acc + f/offset]`
 ```
     while [fc <> parent][
         ofs: ofs + fc/offset
@@ -80,6 +88,7 @@ These can be solved by the `node!` datatype support.
 
 ---
 - walks up the tree just to find window
+- `p: locate/back face [/type = 'window]  p/selected: face`
 ```
 set-focus: function [
     "Sets the focus on the argument face"
@@ -93,6 +102,7 @@ set-focus: function [
 
 ---
 - upwards tree lookup by class
+- `locate/back face [/gl-class = ('frame)]`
 ```
     while [
         face
@@ -124,7 +134,7 @@ set-focus: function [
 
 ---
 - climbs up, constructing the path
-- could be keep-each/reverse x start-path [..]
+- could be `keep-each/reverse x start-path [..]`
 ```
     while [start-path <> window/gob] [
         if start-path/data/gob-face [insert path start-path/data/gob-face]
