@@ -64,9 +64,9 @@ Loops were found to be **distributed** as follows:
 - map-each: 0.8% (small number to it being rarely available)
 - for: 0.6% (too old school, but makes perfect sense where the size is fixed, e.g. a chess board or matrices)
 
-**So far**, I've only analyzed the WHILE loop. See the [respective page](while/README.md). I tried not to include any duplicates or very similar constructs, but some may have slipped through.
+**So far**, I've only analyzed the WHILE and UNTIL loops. I tried not to include any duplicates or very similar constructs, but some may have slipped through.
 
-**I plan** to also analyze UNTIL thouroughly.
+See the respective pages: [WHILE](while/README.md), [UNTIL] (until/README.md). 
 
 FOREACH is the basis of all `-each` funcs. To FOREACH the only question I have is how many FOREACHs are actually MAP-EACHs or REMOVE-EACHs or other `-each`s, and IMO it's not worth any deeper analysis. Right now I expect about 50% of FOREACHs to become MAP-EACHs, mostly because virtually every COLLECT is `collect [foreach [keep...]]` and that is MAP-EACH by very definition.
 Note also that REMOVE-EACH is only a special case of MAP-EACH, and it's quite unfair to have the former but not the latter.
