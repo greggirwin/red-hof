@@ -1,6 +1,6 @@
 # Tree traversal
 
-These can be solved by the `node!` datatype support.
+These can become trivial with `node!` datatype support (https://github.com/red/REP/issues/57).
 
 ---
 - tree: finding ascendant node with constraints
