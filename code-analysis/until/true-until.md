@@ -511,3 +511,12 @@ verify: assert-all: func [cases][
         ]
     ]
 ```
+
+---
+- totally opaque
+```
+    until [
+        eval_stats
+        tail? pos
+    ]
+```
