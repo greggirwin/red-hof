@@ -189,3 +189,16 @@
         ]
     ] 
 ```
+
+---
+- screen to face coordinate translation
+- `ev/offset - sum map-each/reverse f fa [if f/type = 'screen [break] f/offset]`
+```
+    o: ev/offset        ; in screen coordinates
+    f: fa  until [  ; turn into face coordinates
+        o: o - f/offset
+        f: f/parent
+        f/type = 'screen
+    ]
+```
+
