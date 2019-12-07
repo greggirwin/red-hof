@@ -82,3 +82,6 @@ Partly, I expect, because we're usually thinking of the task rather than on choi
 **Proposed designs** and their coverage:
 
 *TO BE FILLED...*
+
+
+Read also on a [coordinate-related code repetition problem](gen-each.md).
