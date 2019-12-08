@@ -5,6 +5,12 @@ Compared to WHILE and UNTIL loops, whose logic is often very tricky, FOREACH is 
 I usually takes me only a momentary glance to see the meaning of the whole FOREACH construct.
 This is an outstanding quality.
 
+FOREACH is the basis of all `-each` funcs. As I expected, slightly over 50% of FOREACHs are imitating MAP-EACH. 
+Partly because virtually every COLLECT is `collect [foreach [keep...]]` and that is MAP-EACH by very definition.
+Note also that REMOVE-EACH is only a special case of MAP-EACH, and it's quite unfair to have the former but not the latter.
+
+---
+
 Foreach loops were found to be **distributed** as follows:
 - 44% were true `foreach`s
 - 48% were accumulators (89% of those were `map-each`s, the rest were usually a summation or min/max)

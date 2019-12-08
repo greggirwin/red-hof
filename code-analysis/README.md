@@ -65,21 +65,20 @@ Loops were found to be **distributed** as follows:
 - map-each: 0.8% (small number to it being rarely available)
 - for: 0.6% (too old school, but makes perfect sense where the size is fixed, e.g. a chess board or matrices)
 
-**So far**, I've analyzed the WHILE, UNTIL and FOREACH loops. I tried not to include any duplicates or very similar constructs, but some may have slipped through.
-
-See the respective pages: [WHILE](while/README.md), [UNTIL](until/README.md), [FOREACH](foreach/README.md). 
-
-FOREACH is the basis of all `-each` funcs. As I expected, slightly over 50% of FOREACHs are imitating MAP-EACH. 
-Partly because virtually every COLLECT is `collect [foreach [keep...]]` and that is MAP-EACH by very definition.
-Note also that REMOVE-EACH is only a special case of MAP-EACH, and it's quite unfair to have the former but not the latter.
-
-I expect FORALL to be 95% obsoleted by adding index support to FOREACH.
+See the respective pages for each of the loop constructs analysis:
+[WHILE](while/README.md), [UNTIL](until/README.md), [FOREACH](foreach/README.md), [FORALL](forall.md). 
 
 An interesting observation I made during this analysis is that I also reinvented some constructs, while not realizing it.
 It seems we are so getting caught in existing designs that we miss the opportunity to look at a different angle.
 Partly, I expect, because we're usually thinking of the task rather than on choice of approach to it.
 
 **Proposed designs** and their coverage:
+
+One of the problems about loops is that they currently have to be implemented in compiler (as so-called 'intrinsics').
+It's abilities there are so limited that even checking a counter is a big and tedious task.
+Thankfully though, both `foreach` and `remove-each` are compiled as calls to their respective natives: `foreach-next`, `foreach-init`, etc.
+So anything doable on R/S level should work.
+
 
 *TO BE FILLED...*
 
