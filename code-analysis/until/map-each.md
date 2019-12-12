@@ -1,5 +1,11 @@
 # MAP-EACH imitations
 
+**Navigate:**
+  * [Mixed, in-place](#mixed-in-place)
+  * [Single item, another target](#single-item-another-target)
+  * [Multiple items, another target](#multiple-items-another-target)
+  * [Unclassified map-each](#unclassified-map-each)
+
 
 ## Mixed, in-place
 
