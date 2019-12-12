@@ -2,6 +2,14 @@
 
 Interesting observation is that so far in-place maps are about as numerous as maps into another target (or copy).
 
+**Navigate:**
+  * [Mixed, in-place](#mixed-in-place)
+  * [Single item, in place](#single-item-in-place)
+  * [Multiple items, in place](#multiple-items-in-place)
+  * [Single item, another target](#single-item-another-target)
+  * [Multiple items, another target](#multiple-items-another-target)
+  * [Unclassified map-each](#unclassified-map-each)
+
 ## Mixed, in-place
 
 - `do compose [(either only ['map-each/only/self]['map-each/self]) x series [action x]]`
