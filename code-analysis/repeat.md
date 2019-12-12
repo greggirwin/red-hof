@@ -15,6 +15,14 @@ REPEATs were found to be **distributed** as follows:
 
 All in all, REPEAT examples only further confirm the list of features that WHILE has hinted at.
 
+---
+**Navigate:**
+  * [Imitations of MAP-EACH, in place](#imitations-of-map-each-in-place)
+  * [Imitations of MAP-EACH, another target](#imitations-of-map-each-another-target)
+  * [Imitations of FOREACH](#imitations-of-foreach)
+  * [True REPEAT](#true-repeat)
+  * [Unclassified REPEAT](#unclassified-repeat)
+
 
 ## Imitations of MAP-EACH, in place
 
