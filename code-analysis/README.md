@@ -66,7 +66,7 @@ Loops were found to be **distributed** as follows:
 - for: 0.6% (too old school, but makes perfect sense where the size is fixed, e.g. a chess board or matrices)
 
 See the respective pages for each of the loop constructs analysis:
-[WHILE](while/README.md), [UNTIL](until/README.md), [FOREACH](foreach/README.md), [FORALL](forall.md). 
+[WHILE](while/README.md), [UNTIL](until/README.md), [FOREACH](foreach/README.md), [FORALL](forall.md), [REPEAT](repeat.md). 
 
 An interesting observation I made during this analysis is that I also reinvented some constructs, while not realizing it.
 It seems we are so getting caught in existing designs that we miss the opportunity to look at a different angle.
