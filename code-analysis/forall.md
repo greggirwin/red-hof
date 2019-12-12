@@ -28,6 +28,17 @@ Most of the time though, it was either assumed that the loop finishes without BR
 
 # Examples
 
+**Navigate**:
+  * [Imitations of MAP-EACH, in-place, unfiltered](#imitations-of-map-each-in-place-unfiltered)
+  * [Imitations of MAP-EACH, in-place, filtered](#imitations-of-map-each-in-place-filtered)
+  * [Imitations of MAP-EACH, another target](#imitations-of-map-each-another-target)
+  * [Imitations of FOREACH with index](#imitations-of-foreach-with-index)
+    + [Lookups](#lookups)
+  * [Imitations of FOREACH without index](#imitations-of-foreach-without-index)
+    + [Lookups](#lookups-1)
+  * [Other cases](#other-cases)
+
+
 ## Imitations of MAP-EACH, in-place, unfiltered
 
 Most of these can be considered "bulk application" (see [FOREACH](foreach/README.md))
