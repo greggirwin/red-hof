@@ -72,6 +72,7 @@ Most of these can be considered "bulk application" (see [FOREACH](foreach/README
 - in-place map with skip=2
 - `parse body [any [skip change set x skip (form x)]]`
 - `map-each [x y] body [reduce [x form y]]`
+- `map-each/eval [x y] body [ [x form y] ]`
 - `map-each x body [advance form x]`
 ```
 	forall body [body: next body body/1: form body/1]
@@ -255,6 +256,7 @@ move-connected: func [p3d][
 
 ---
 - `map-each/into x src [reduce [either ..]] out`
+- `append out map-each/eval x src [ [either ..] ]`
 ```
     forall src [ repend out [ either as-is [mold src/1] [src/1] delimiter ] ]
 ```

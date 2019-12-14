@@ -177,6 +177,7 @@ replace-deep: function [
 ---
 - normal map over 2 series; copy/deep is paranoid here
 - `map-each [v s] zip [var src] [reduce ['set v s]]`
+- `map-each/eval [v s] zip [var src] [ ['set v s] ]`
 ```
 	repeat i length? var [
 		append out compose/only copy/deep [set (var/:i) (src/:i)]
@@ -186,6 +187,7 @@ replace-deep: function [
 ---
 - normal map with index
 - `map-each [i: x] fields [reduce [x  append to path! 'row i]]`
+- `map-each/eval [i: x] fields [ [x  append to path! 'row i] ]`
 ```
 	repeat i length? fields [
 		append path-map reduce [
@@ -226,6 +228,7 @@ replace-deep: function [
 ---
 - normal map
 - `map-each [os: x] record [reduce [db/locals/columns/:os/name x]]`
+- `map-each/eval [os: x] record [ [db/locals/columns/:os/name x] ]`
 ```
 	repeat os length? record [
 		keep db/locals/columns/:os/name

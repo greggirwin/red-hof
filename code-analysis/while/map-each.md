@@ -149,6 +149,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 
 ---
 - `map-each/self [x _] [reduce [to word! x _]]`
+- `map-each/self/eval [x _] [ [to word! x _] ]` ?
 ```
 	while [not tail? list][
 		poke list 1 to word! first list 
@@ -233,7 +234,9 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 
 
 ---
-- why not: `append blk map-each x split path "/" [reduce [form x x]]`
+- why not:
+- `append blk map-each x split path "/" [reduce [form x x]]` or
+- `append blk map-each/eval x split path "/" [ [form x x] ]` ?
 ```
     while [not root] [
         repend blk [form path path] 
@@ -261,7 +264,7 @@ Interesting observation is that so far in-place maps are about as numerous as ma
 ---
 - fill a block of caller's refinements/arguments
 - `forparse [set ref refinement!] [repend r ...]`
-- `map-parse [set ref refinement!] [reduce [...]]`
+- `map-parse/eval [set ref refinement!] [ [...] ]` ?
 ```
 	pos: spec-of :caller
 	while [pos: find/tail pos refinement!] [
