@@ -550,7 +550,7 @@ Where REPEAT seems more suitable for that: `repeat i length? series [..i..]`.
 ### Lookups
 
 ---
-- `lookup months [m: (month = copy/part m 3)]` ?
+- `locate months [m: (month = copy/part m 3)]` ?
 ```
 	forall months [
 		if equal? month copy/part first months 3 [
@@ -561,7 +561,7 @@ Where REPEAT seems more suitable for that: `repeat i length? series [..i..]`.
 
 ---
 - gets match and position
-- `if match: lookup list [x: (find/match form x get-face face)] [complete face]`
+- `if match: locate list [x: (find/match form x get-face face)] [complete face]`
 ```
     forall list [
         if find/match form first list get-face face [match: list complete face break]
@@ -793,7 +793,7 @@ Why not use foreach? Could be mistakes? Refactoring leftovers?
 
 
 ---
-- `not none? lookup ports [in (waked)]`
+- `not none? locate ports [in (waked)]`
 ```
     forall ports [
         if find waked first ports [return true]
@@ -802,7 +802,7 @@ Why not use foreach? Could be mistakes? Refactoring leftovers?
 
 ---
 - lookup - should be foreach
-- `found-text: copy first lookup texts [string! x: (find/match x start-text)]` ?
+- `found-text: copy first locate texts [string! x: (find/match x start-text)]` ?
 ```
     forall texts [
         if string? texts/1 [
@@ -814,7 +814,7 @@ Why not use foreach? Could be mistakes? Refactoring leftovers?
 ---
 - lookup; foreach with 2 points known at once and skip=1
 - `foreach/stride [p1 p2] points [...]`
-- `index? lookup points [p1: 1 p2: 2 (at-distance-from-line? event/offset p1 p2 7)]` ?? this complicates `lookup` to much
+- `index? locate points [p1: 1 p2: 2 (at-distance-from-line? event/offset p1 p2 7)]` ?? this complicates `locate` too much
 ```
 	forall points [
 		if all [
@@ -833,7 +833,7 @@ Why not use foreach? Could be mistakes? Refactoring leftovers?
 ---
 - lookup - foreach
 - `foreach t with-types [t: get t  if any [t = type  all [typeset? t find t type]] [return t]]`
-- `lookup with-types [x: (type = get x) or (all [...])]` boring...
+- `locate with-types [x: (type = get x) or (all [...])]` boring...
 ```
 	with-types: head with-types
 	forall with-types [
