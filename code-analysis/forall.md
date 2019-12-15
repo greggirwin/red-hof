@@ -1,6 +1,6 @@
 # FORALL
 
-FORALL is a somewhat low-level construct. It's main use is to provide for the deficiencies of FOREACH:
+FORALL is a somewhat low-level construct. It's main use is to **provide for the deficiencies of FOREACH**:
 - 42% were imitating MAP-EACH, latter being unavailable or limited (67% in-place maps, 33% mapped into another target)
 - 31% were meant to be FOREACHs, but didn't become so for whatever reason
 - 20% were adding an index to FOREACH, noble cause if REPEAT wouldn't have been better at that
@@ -8,22 +8,22 @@ FORALL is a somewhat low-level construct. It's main use is to provide for the de
 - 1 case was imitating a REMOVE-EACH
 - 4% (only) were really meant to be FORALLs
 
-Among FOREACH imitations, 18% were lookups (break or return after a value is found).
-About 11% of all FORALLs were filtering the inputs before processing.
+Among FOREACH imitations, **18%** were **lookups** (break or return after a value is found).
+About **11%** of all FORALLs were **filtering** the inputs before processing.
 
-Features of FORALL:
-- It provides an index in the form of series position, although in the vast majority of cases that index is used numerically as `index? series`. This is easy to add into FOREACH.
-- With that index one can modify the series in place. Something a MAP-EACH must be able to do more gracefully.
-- Easy access to adjacent items - `series/2`, `series/3`... Can be done with a refinement for FOREACH (e.g. `/stride`) that will fix it's step at 1 and also prevent iterations where one of the need items is over the tail (FORALL requires an additional check for that).
-- It's possible to advance the series when needed, when the loop algorithm requires. This can be solved by adding an `advance` function to FOREACH, same as we have `keep` in COLLECT.
-- It's possible to replace the series: `forall s [.. s: something-else..]`, and FORALL continues on the new series. Well, it's possible in R2 & R3, but not in Red ☻ Red complains about that, by design.
+**Features** of FORALL:
+- It **provides an index** in the form of series position, although in the vast majority of cases that index is **used numerically** as `index? series`. This is easy to add into FOREACH.
+- With that index one can **modify the series** in place. Something a MAP-EACH must be able to do more gracefully.
+- Easy access to **adjacent items** - `series/2`, `series/3`... Can be done with a refinement for FOREACH (e.g. `/stride`) that will fix it's step at 1 and also prevent iterations where one of the need items is over the tail (FORALL requires an additional check for that).
+- It's **possible to advance** the series when needed, when the loop algorithm requires. This can be solved by adding an `advance` function to FOREACH, same as we have `keep` in COLLECT.
+- It's **possible to replace** the series: `forall s [.. s: something-else..]`, and FORALL continues on the new series. Well, it's possible in R2 & R3, but not in Red ☻ Red complains about that, by design.
 
-I believe we can almost totally replace FORALL (along with half of WHILEs and UNTILs) with more declarative `-each` loops if we provide the facilities mentioned above.
+I believe we can almost totally replace FORALL (along with half of WHILEs and UNTILs) with **more declarative `-each`** loops if we provide the facilities mentioned above.
 
-One other feature is that FORALL leaves the index of the series as is after a BREAK.
+One other feature is that FORALL **leaves the index** of the series as is **after a BREAK**.
 Sometimes this was used in lookups: index after BREAK tells *where* the found item is.
 In one identified case this feature was used to update the series index to later be able to enter another FORALL, from that index.
-Most of the time though, it was either assumed that the loop finishes without BREAK, so the index will be set to head, or this feature was fought against by placing an explicit `series: head series` after. And it makes sense - very rarely we want the series be left not at it's head.
+**Most of the time** though, it was either **assumed** that the loop finishes without BREAK, so the index will be set to head, or this feature was **fought against** by placing an explicit `series: head series` after. And it makes sense - very **rarely** we want the series be **left not at it's head**.
 
 
 # Examples
