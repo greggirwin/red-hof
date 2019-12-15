@@ -56,7 +56,7 @@
 ```
 
 ---
-- `for i 0 40000h [...]`
+- `for i 0 length 40000h [...]`
 ```
     while [i < length] [
         ...
