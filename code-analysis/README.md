@@ -171,8 +171,6 @@ So anything doable on R/S level should work.
 
 
 
-The info collected dictates the following ...
-
 
 *TO BE CONTINUED... ;)*
 
