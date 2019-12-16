@@ -148,6 +148,11 @@ The following table shows the type of index best suited the needs of the develop
 It is clear that **integer** index is **preferred** (outnumbers series 4:1), although maybe we could support both?
 These are convertible to one another of course, and are only a matter of convenience.
 
+### Other stats
+
+- only 8 examples required `foreach` with step=1 and >1 arguments
+- only 12 examples required `foreach` to advance on demand
+
 ## Proposed designs and their coverage
 
 One of the problems about loops is that they currently have to be implemented in compiler (as so-called 'intrinsics').
