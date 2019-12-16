@@ -3,9 +3,6 @@ It's aim is to provide a solid ground for **decision making** about what kind of
 to find out where design's theoretical beauty becomes clumsiness in practice,
 and where is the balance between HOFs internal complexity and that of users code.
 
-With properly chosen designs we can make iterators code both very readable and concise.
-Another problem we may solve is that each wheel reinvention is time investments and extra risk of bugs.
-
 **Navigate**:
 - [Data sample](#data-sample)
 - [Loop spread](#loop-spread)
@@ -16,6 +13,9 @@ Another problem we may solve is that each wheel reinvention is time investments 
 
 
 ## Data sample
+
+With properly chosen designs we can make iterators code both very readable and concise.
+Another problem we may solve is that each wheel reinvention is time investments and extra risk of bugs.
 
 To that end, a total of **1622 loop constructs** were extracted from the following projects (ordered by cumulative loops size):
 - vid-extension-kit.r
