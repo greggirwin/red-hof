@@ -1,3 +1,5 @@
+## Intro
+
 This is a WIP **analysis** of loop constructs written by various people for various real-world projects in R2, R3 and Red.
 It's aim is to provide a solid ground for **decision making** about what kind of **HOFs design** should Red follow,
 to find out where design's theoretical beauty becomes clumsiness in practice,
@@ -5,6 +7,8 @@ and where is the balance between HOFs internal complexity and that of users code
 
 With properly chosen designs we can make iterators code both very readable and concise.
 Another problem we may solve is that each wheel reinvention is time investments and extra risk of bugs.
+
+## Data sample
 
 To that end, a total of **1622 loop constructs** were extracted from the following projects (ordered by cumulative loops size):
 - vid-extension-kit.r
@@ -54,6 +58,8 @@ The **choice of projects** were driven by these factors:
 - variety of authors to cover more approaches and designs
 - bigger projects are chosen for they should be more refined, and it just save me time
 
+## Loop spread
+
 Loops were found to be **distributed** as follows:
 - foreach: 59.9% (dumbest and most convenient)
 - while: 13.4% (60% of whiles is reinventing features a language lacks)
@@ -72,7 +78,53 @@ An interesting observation I made during this analysis is that I also reinvented
 It seems we are so getting caught in existing designs that we miss the opportunity to look at a different angle.
 Partly, I expect, because we're usually thinking of the task rather than on choice of approach to it.
 
-**Proposed designs** and their coverage:
+## Loop/Meaning matrix
+
+The following table summarizes how each **loop** served to achieve one or other **aim**:
+
+|   MEANING⇨<br> ⇩LOOP:spread⇩ | foreach<sup>1</sup>  | while/until | map<sup>2</sup>    | filter | fold<sup>3</sup> | lookup | loop repeat for | filtered<sup>4</sup> |
+|     --:   | ---         | ---         | ---       |  ---   |  ---    | ---    | ---             | ---         |
+|  foreach:60%  |  44% (6%)   |             | 39% (2%)  | 3%     |   6%    |  8%    |                 | 24%         |
+|  while:13%    |  24% (29%)  | 37%         | 17% (56%) | 12%    |         |  4%    | 6%              | ?           |
+|  until:7%     |  27% (48%)  | 48%         | 9% (12%)  | 1%     |         |  12%   | 3%              | ?           |
+|  forall:5%    |  50%        |             | 42% (67%) | 1%     |         |  6%    | 1%              | 11%         |
+|  repeat:6%    |  12%        |             | 27% (40%) |        |         |        | 60%             | 3%          |
+|  loop:4%      |  10%        |             | 13% (83%) |        |         |        | 46% + 31% other | ?           |
+| remove-each:3%|             |             |           | 100%   |         |        |                 | 100%        |
+|  map-each:1%  |             |             | 100% (8%) |        |         |        |                 | ?           |
+|  for:1%       |  14%        |             |           |        |         |        | 86%             | ?           |
+
+**Same** table with numbers **premultiplied** by spread (1st column):
+
+|   MEANING⇨<br> ⇩LOOP:spread⇩ | foreach<sup>1</sup>  | while/until | map<sup>2</sup>    | filter | fold<sup>3</sup> | lookup | loop repeat for | filtered<sup>4</sup> |
+|     --:   | ---         | ---         | ---       |  ---   |  ---    | ---    | ---             | ---         |
+|  foreach:60%  |  26.4% (6%) |             | 23.4% (2%)| 1.8%   | 3.6%    | 4.8%   |                 | 14.4%       |
+|  while:13%    |  3.1% (29%) | 4.8%        | 2.2% (56%)| 1.6%   |         | 0.5%   | 0.8%            | ?           |
+|  until:7%     |  1.9% (48%) | 3.4%        | 0.6% (12%)| 0%     |         | 0.8%   | 0.2%            | ?           |
+|  forall:5%    |  2.5%       |             | 2.1% (67%)| 0%     |         | 0.3%   | 0%              | 0.6%        |
+|  repeat:6%    |  0.7%       |             | 1.6% (40%)|        |         |        | 3.6%            | 0.2%        |
+|  loop:4%      |  0.4%       |             | 0.5% (83%)|        |         |        |1.8% + 1.2% other| ?           |
+| remove-each:3%|             |             |           | 3.0%   |         |        |                 | 3.0%        |
+|  map-each:1%  |             |             | 1.0% (8%) |        |         |        |                 | ?           |
+|  for:1%       |  0.1%       |             |           |        |         |        | 0.9%            | ?           |
+
+Footnotes:
+
+<sup>1</sup>`total % (rel % on trees, rel % of lookups)`, e.g. `foreach/foreach 44% (6%)` means:
+- 44% of all `foreachs` were indeed `foreach`s by meaning
+- 6% of those 44% = 2.5% of all `foreach`s - were traversing trees (as `foreach-face` no doubt)
+
+<sup>2</sup>`total % (rel % of in-place)`, e.g. `while/map 17% (56%)` means:
+- 17% of all `while` loops were maps by meaning
+- 56% of those 17% = 10% of all `while` loops - were in-place maps
+
+<sup>3</sup> accumulators not including map (which is kind of fold too)
+
+<sup>4</sup> spread of filtering of the incoming data, *across all meanings*
+
+
+
+## Proposed designs and their coverage
 
 One of the problems about loops is that they currently have to be implemented in compiler (as so-called 'intrinsics').
 It's abilities there are so limited that even checking a counter is a big and tedious task.
