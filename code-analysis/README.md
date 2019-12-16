@@ -9,7 +9,7 @@ Another problem we may solve is that each wheel reinvention is time investments 
 **Navigate**:
 - [Data sample](#data-sample)
 - [Loop spread](#loop-spread)
-- [Loop/Meaning matrix](#loop-meaning-matrix)
+- [Loop/Meaning matrix](#loopmeaning-matrix)
   * [Map: in-place vs another target](#map-in-place-vs-another-target)
   * [Index: numeric vs series](#index-numeric-vs-series)
 - [Proposed designs and their coverage](#proposed-designs-and-their-coverage)
