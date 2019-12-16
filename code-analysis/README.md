@@ -1,5 +1,3 @@
-## Intro
-
 This is a WIP **analysis** of loop constructs written by various people for various real-world projects in R2, R3 and Red.
 It's aim is to provide a solid ground for **decision making** about what kind of **HOFs design** should Red follow,
 to find out where design's theoretical beauty becomes clumsiness in practice,
@@ -7,6 +5,15 @@ and where is the balance between HOFs internal complexity and that of users code
 
 With properly chosen designs we can make iterators code both very readable and concise.
 Another problem we may solve is that each wheel reinvention is time investments and extra risk of bugs.
+
+**Navigate**:
+- [Data sample](#data-sample)
+- [Loop spread](#loop-spread)
+- [Loop/Meaning matrix](#loop-meaning-matrix)
+  * [Map: in-place vs another target](#map-in-place-vs-another-target)
+  * [Index: numeric vs series](#index-numeric-vs-series)
+- [Proposed designs and their coverage](#proposed-designs-and-their-coverage)
+
 
 ## Data sample
 
