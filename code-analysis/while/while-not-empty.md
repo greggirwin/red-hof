@@ -52,7 +52,8 @@
 
 ---
 - skips 1-2 items
-- `forparse [set value skip  set attrs opt string!] [...]`
+- `forparse [set value skip  set attrs opt string!] attrs [...]`
+- `foreach [p: value] atts [.. if string? :p/2 [advance ..] ..]`
 ```
     while [not tail? attrs] [
         value: first attrs 
@@ -89,8 +90,9 @@
 - steps by 1-2 items
 - `parse spec [ any [ set attr opt set-word!  set value skip (...code...) ] ]`
 - `forparse [ set attr opt set-word!  set value skip ] [...]`
-- `forparse [ attr [set-word!] value | value ] [...]`
-- `forparse [ attr/set-word! value | value ] [...]`
+- `forparse [ attr [set-word!] value | value ] [...]` ?
+- `forparse [ attr/set-word! value | value ] [...]` ??
+- `foreach x spec [switch.. x [... [form-attr to word! x first advance]] ...]`
 ```
     while [not empty? spec][
         switch/default value: take spec [

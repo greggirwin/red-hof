@@ -482,7 +482,7 @@ collect/into [
 ```
 
 ---
-- could be map-each with 2 items known at once, step=1, and an integer index, but it's complicated: has to replace only the 2st item
+- could be map-each with 2 items known at once, step=1, and an integer index, but it's complicated: has to replace only the 2nd item
 ```
 	repeat i length? p: info-panel/pane [
 		j: i - 1
