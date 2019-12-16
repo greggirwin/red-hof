@@ -291,7 +291,7 @@
 		]
 
 
-; counter
+; counter - and not a place for `zip`
 		foreach [s n] block-list [
 			if find/case line s [			
 				poke block-list c block-list/:c + 1

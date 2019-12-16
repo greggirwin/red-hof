@@ -1,4 +1,3 @@
-; TODO select those that are filters/remove-eachs - do not modify the result!
 ; 1 inplace map
 
 

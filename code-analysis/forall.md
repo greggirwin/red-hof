@@ -111,11 +111,6 @@ Most of these can be considered "bulk application" (see [FOREACH](foreach/README
 
 ---
 ```
-	forall res [change/part res/1 object res/1 1]
-```
-
----
-```
 	forall words [words/1: form words/1]
 ```
 
@@ -572,6 +567,12 @@ Where REPEAT seems more suitable for that: `repeat i length? series [..i..]`.
 ## Imitations of FOREACH without index
 
 Why not use foreach? Could be mistakes? Refactoring leftovers?
+
+---
+- `foreach x res [change x object x]`
+```
+	forall res [change/part res/1 object res/1 1]
+```
 
 ---
 - in-place map? can be foreach

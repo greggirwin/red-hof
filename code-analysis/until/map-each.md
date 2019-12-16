@@ -141,6 +141,7 @@ emit: func [data][
 ---
 - `remove-each data/2 [pos: _ _ _] [repend ... take ... yes]`
 - `map-each/into [pos: _ _ _] data/2 [copy/part pos 3] output`
+- `append output map-each/eval [x y z] data/2 [[x y z]] output`
 ```
 	until [
 		repend output process-tag take/part data/2 3

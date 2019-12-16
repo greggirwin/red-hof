@@ -146,7 +146,7 @@ foreach file read %../resources/skins/ [
     ]
 ]
 
-; counter
+; counter - used as integer
         foreach pct pcts [
             count: count + 1
             if pct > 0 [

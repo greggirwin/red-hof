@@ -250,6 +250,7 @@ replace-deep: function [
 
 ---
 - filtered or not, normal map - enumeration
+- `map-each [i: x] data* pick [ [either ffunc* x [i][[]]] [i] ] any-function? :ffunc*`
 ```
     repeat i length? data* 
     either any-function? :ffunc* [

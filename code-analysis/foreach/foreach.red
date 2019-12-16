@@ -180,8 +180,8 @@ foreach word [hilight-text hilight-all unlight-text] [
                 insert-actor-func self act :set-scroller 
                 pass-actor self area act
             ] 
-
-; counter
+            
+; counter - both integer and as item from another series
                 foreach day face/pane [
                     either i < 7 [
                         day/text: copy/part pick system/locale/days i + 1 2
@@ -219,7 +219,7 @@ foreach word [hilight-text hilight-all unlight-text] [
                     set-slider face/sliders/:idx face/data/:chn
                 ]
 
-; counter
+; counter - `zip` is not fit for 2+1 merging
             foreach [size offset] arrangement [
                 i: i + 1 
                 face/restore/no-show face windows/:i 
@@ -837,7 +837,7 @@ do [foreach tab tab-pan/pane [tab/parent/offset tab/offset: tab/parent/offset + 
 						]
 					]
 
-; counter
+; counter - for head and tail checks only
 			foreach choice choices [
 				any[
 					all [ (i = 1) clip:  ['right]  corner: tab/corner ]
@@ -953,6 +953,8 @@ foreach-node*: function [node rules] [
 ; counter
 			i: 1
 			foreach row data [
+				...
+					cause-error 'user 'message reduce [reform ["Row" i message]]
 				...
 				i: i + 1
 			]
@@ -1161,7 +1163,7 @@ foreach-node: func [
 			]
 		]
 
-; counter
+; counter - unused
 			foreach [a b c d] list [
 				log/info reform [a b]
 				log/info ["code:" mold c]
@@ -1692,7 +1694,7 @@ foreach [name codes width glyph] list [
 
 
 
-; iteration index <> index pos here - how to make a simple index?
+; iteration index <> index pos here - how to make a simple index? just div by 4?
 		foreach [obj field reaction target] relations [
 			prin count: count + 1
 			prin ":---^/"

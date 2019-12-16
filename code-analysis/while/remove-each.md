@@ -61,8 +61,8 @@
 ---
 - from RTD/`close-colors`:
 - color-stk consists of triples [s-idx '_ c] - I don't get it why it needs an `'_` ??
-- `append map-each [pos: idx '_ color] [...remove/part pos 3...]`  ?
 - `remove-each [pos: idx '_ color] [... insert out ...]` ?
+- `append out map-each [idx '_ color] [...]` ?
 ```
 	pos: tail color-stk
 	while [pos: find/reverse pos '_][

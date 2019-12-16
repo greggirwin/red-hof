@@ -18,7 +18,7 @@ Foreach loops were found to be **distributed** as follows:
 
 I categorized FOREACH as:
 - **Filtered** if before doing something with the data it applied a `if` block on it.
-- **A true filter** if after filtering it did no modification to the original data.
+- **A true filter** if after filtering it did no modification to the original data (`remove-each` and `keep-each` are examples).
 These are the cases that we should try to approach with our `filter`/`remove-each`/`sift` designs.
 A playground that can answer what's best *in practice*.
 

@@ -113,7 +113,7 @@ either parse value [some word!][
 ```
 
 ---
-- `vs: values-of color  color: to tuple!  to integer! round m + color/* * 255` - not better
+- `vs: values-of color  color: to tuple!  to integer! round m + vs/* * 255` - not better
 ```
 	color: to tuple! map-each value values-of color [to integer! round m + value * 255]
 ```

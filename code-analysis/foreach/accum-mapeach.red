@@ -58,7 +58,7 @@
         ]
     ] 
 
-; counter
+; counter, could be `zip` but it's unfit for zipping 2 items of `input-value` with 1 item of `widths`
             foreach [key value] input-value [
                 i: i + 1 
                 face/emit compose/deep [
@@ -85,7 +85,7 @@
             ]
 
 
-; counter
+; counter - unused
             foreach [key value] input-value [
                 i: i + 1 
                 face/emit compose/deep [
@@ -99,7 +99,7 @@
                 ]
             ]
 
-; counter
+; counter - unused
             foreach [key value] input-value [
                 i: i + 1 
                 face/emit compose/deep [
@@ -116,7 +116,7 @@
                             insert/only tail data reduce [string word]
                         ]
 
-; counter
+; counter - unused
             foreach [pane text] input-value [
                 i: i + 1 
                 face/emit compose/deep [
@@ -152,7 +152,7 @@
                         append face/names uppercase/part form word 1
                     ]
 
-; counter
+; counter - can be `zip`
 			foreach obj objs [
 				i: i + 1
 				if all [in obj 'menu block? obj/menu] [
@@ -160,11 +160,13 @@
 				]
 				emit compose/deep [
 					...
+								m: pick menus (i)
+					...
 				]
 			]
 
 
-; counter
+; counter - used as integer
 				foreach item self/source [
 					id: id + 1
 					name-face/text: item/name
@@ -1499,7 +1501,7 @@ foreach [name url] value [repend databases/global [name url make block! 1]]
                         insert tail result rewrite copy/deep body rewrite-rules
                     ]
 
-; counter
+; counter - can be `zip`
                         foreach var vars [
                             cell: pick row/contents i 
                             if cell/type = 'span [cell: cell/reference] 
