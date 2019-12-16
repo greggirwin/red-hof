@@ -122,7 +122,24 @@ Footnotes:
 
 <sup>4</sup> spread of filtering of the incoming data, *across all meanings*
 
+### Map: in-place vs another target
 
+Though `foreach` shows only 2% of in-place maps, this is because foreach does not provide the index right now.
+Other loops were often used to implement an in-place map, reaching:
+- 14% of all maps are in-place maps
+
+### Index: numeric vs series
+
+The following table shows the type of index best suited the needs of the developer, across all loops analyzed:
+
+|           |while|until|loop|map-each|repeat|foreach|total
+| :--       | --- | --- | --- | ---   | ---  | ---   | :--
+|as series  |  6  |   6 |  1 |        |      |       | 13 = 18%
+|as integer |  4  |   12|    |    1   |    12|    23 | 52 = 73%
+|both work  |  2  |   3 |    |        |      |    1  | 6  = 9%
+
+It is clear that **integer** index is **preferred** (outnumbers series 4:1), although maybe we could support both?
+These are convertible to one another of course, and are only a matter of convenience.
 
 ## Proposed designs and their coverage
 
