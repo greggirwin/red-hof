@@ -81,6 +81,8 @@ Loops were found to be **distributed** as follows:
 See the respective pages for each of the loop constructs analysis:<br>
 [WHILE](while/README.md), [UNTIL](until/README.md), [FOREACH](foreach/README.md), [FORALL](forall.md), [REPEAT](repeat.md), [LOOP](loop.md), [REMOVE-EACH](remove-each.md), [MAP-EACH](map-each.md), [FOR](for.md). 
 
+Read also on a [coordinate-related code repetition problem](gen-each.md).
+
 An interesting observation I made during this analysis is that I also reinvented some constructs, while not realizing it.
 It seems we are so getting caught in existing designs that we miss the opportunity to look at a different angle.
 Partly, I expect, because we're usually thinking of the task rather than on choice of approach to it.
@@ -139,19 +141,26 @@ Other loops were often used to implement an in-place map, reaching:
 
 The following table shows the type of index best suited the needs of the developer, across all loops analyzed:
 
-|           |while|until|loop|map-each|repeat|foreach|total
-| :--       | --- | --- | --- | ---   | ---  | ---   | :--
-|as series  |  6  |   6 |  1 |        |      |       | 13 = 18%
-|as integer |  4  |   12|    |    1   |    12|    23 | 52 = 73%
-|both work  |  2  |   3 |    |        |      |    1  | 6  = 9%
+|           |while|until|loop|map-each|repeat|foreach|forall|total
+| :--       | --- | --- | --- | ---   | ---  | ---   | ---  | :--
+|as series  |  11 |   8 |  1 |        |      |       |  2   | 22 = 23%
+|as integer |  4  |   12|    |    1   |    12|    23 |  13  | 65 = 66%
+|both work  |  2  |   6 |    |        |      |    1  |  2   | 11 = 11%
 
-It is clear that **integer** index is **preferred** (outnumbers series 4:1), although maybe we could support both?
+It is clear that **integer** index is **preferred** (outnumbers series 3:1), although maybe we could support both?
+- integer index is better at accessing another series: `foreach [i: x y] ser1 [.. ser2/:i ..]`
+- series index is better at accessing adjacent items: `foreach [pos: x y] ser [.. pos/-1 .. pos/3 ..]`
+
 These are convertible to one another of course, and are only a matter of convenience.
 
 ### Other stats
 
-- only 8 examples required `foreach` with step=1 and >1 arguments
-- only 12 examples required `foreach` to advance on demand
+- 12 examples required `foreach` to advance on demand
+- 12 examples required `zip` func as they iterate over 2 or more series in parallel
+- 8 examples required `foreach` with step=1 and >1 arguments
+- 9 examples required value filter embedded into `foreach`
+- 5 examples required type filter embedded into `foreach`
+- 2 examples decomposed `foreach` argument into more values with `set`
 
 ## Proposed designs and their coverage
 
@@ -161,7 +170,10 @@ Thankfully though, both `foreach` and `remove-each` are compiled as calls to the
 So anything doable on R/S level should work.
 
 
-*TO BE FILLED...*
+
+The info collected dictates the following ...
 
 
-Read also on a [coordinate-related code repetition problem](gen-each.md).
+*TO BE CONTINUED... ;)*
+
+

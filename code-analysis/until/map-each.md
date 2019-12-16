@@ -11,7 +11,7 @@
 
 ---
 - `foreach [pos: x [string!]] glyph [...]` - it grows the glyph though, so `foreach` can't rely on a fixed length
-- `map-each/self [pos: x [string!]] glyph [...]` - this'll work
+- `map-each/self [x [string!]] glyph [...]` - this'll work
 - this example shows that in-place map-each cannot be properly implemented using foreach, unless foreach checks the length every time
 ```
 	pos: find glyph string!
