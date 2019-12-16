@@ -73,7 +73,7 @@ Most of these can be considered "bulk application" (see [FOREACH](foreach/README
 - `parse body [any [skip change set x skip (form x)]]`
 - `map-each [x y] body [reduce [x form y]]`
 - `map-each/eval [x y] body [ [x form y] ]`
-- `map-each x body [advance form x]`
+- `map-each x body [advance form x]` - this is no good, as it will update `x` on `advance`?
 ```
 	forall body [body: next body body/1: form body/1]
 ```
