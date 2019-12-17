@@ -116,6 +116,7 @@ The following table summarizes how each **loop** served to achieve one or other 
 | remove-each:3%|             |             |           | 3.0%   |         |        |                 | 3.0%        |
 |  map-each:1%  |             |             | 1.0% (8%) |        |         |        |                 | ?           |
 |  for:1%       |  0.1%       |             |           |        |         |        | 0.9%            | ?           |
+|  Total        |  35.1%      | 8.2%        | 31.4%     | 6.4%   | 3.6%    | 6.4%   | 8.5%            | 18.2%       |
 
 Footnotes:
 
