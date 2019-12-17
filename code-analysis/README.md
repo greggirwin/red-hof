@@ -170,7 +170,22 @@ It's abilities there are so limited that even checking a counter is a big and te
 Thankfully though, both `foreach` and `remove-each` are compiled as calls to their respective natives: `foreach-next`, `foreach-init`, etc.
 So anything doable on R/S level should work.
 
+I asked:
+Should the compiler support block refs for loop/repeat? e.g.:
+```
+code: []
+loop 5 code
+```
+It doesn't today. 
+```
+*** Compilation Error: expected a block for LOOP-BODY instead of word! value 
+*** in file: D:\Red\temp\bad-loop-compile.red
+*** near: [code]
+```
 
+Nenad responded:
+
+It could try to fallback on the interpreter for that, but I don't think it's possible to support all the possible expressions you could put after `loop 5....`
 
 
 *TO BE CONTINUED... ;)*
