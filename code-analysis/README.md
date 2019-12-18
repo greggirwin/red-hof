@@ -116,6 +116,7 @@ The following table summarizes how each **loop** served to achieve one or other 
 | remove-each:3%|             |             |           | 3.0%   |         |        |                 | 3.0%        |
 |  map-each:1%  |             |             | 1.0% (8%) |        |         |        |                 | ?           |
 |  for:1%       |  0.1%       |             |           |        |         |        | 0.9%            | ?           |
+|  Total        |  35.1%      | 8.2%        | 31.4%     | 6.4%   | 3.6%    | 6.4%   | 8.5%            | 18.2%       |
 
 Footnotes:
 
@@ -202,6 +203,27 @@ We could make block HOFs eager, and function HOFs lazy. FP addicts should like t
 ### Sift
 
 ### Part/limit
+
+
+### Indirect (non-literal) body blocks
+
+@greggirwin asked:
+Should the compiler support block refs for loop/repeat? e.g.:
+```
+code: []
+loop 5 code
+```
+It doesn't today. 
+```
+*** Compilation Error: expected a block for LOOP-BODY instead of word! value 
+*** in file: D:\Red\temp\bad-loop-compile.red
+*** near: [code]
+```
+
+Nenad responded:
+
+It could try to fallback on the interpreter for that, but I don't think it's possible to support all the possible expressions you could put after `loop 5....`
+
 
 *TO BE CONTINUED... ;)*
 
