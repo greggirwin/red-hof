@@ -162,6 +162,8 @@ These are convertible to one another of course, and are only a matter of conveni
 - 5 examples required type filter embedded into `foreach`
 - 2 examples decomposed `foreach` argument into more values with `set`
 
+(`foreach` here also includes `map-each`)
+
 ## Proposed designs and their coverage
 
 One of the problems about loops is that they currently have to be implemented in compiler (as so-called 'intrinsics').
@@ -169,8 +171,37 @@ It's abilities there are so limited that even checking a counter is a big and te
 Thankfully though, both `foreach` and `remove-each` are compiled as calls to their respective natives: `foreach-next`, `foreach-init`, etc.
 So anything doable on R/S level should work.
 
+### Idiomatic block HOFs vs FP-like function HOFs
+
+@dockimbel emphasizes:
+> it seems that it would be good to support both block-oriented and function-oriented HOF, and use user-friendly naming (e.g. accumulate) for the former and more common names for the latter (e.g. fold).
+> Note that HOF with functions (instead of blocks) can be compiled while block-oriented ones can't (unless we add annotations to let the compiler know that the body block contains code. In tight loops, it can make a significant speed difference.
+
+Another point to consider is laziness: some HOFs may return a stream (as a port for example) with inputs and transformation defined.
+This stream may fetch items upon request or even allow modification of the input.
+- benefit: requires less RAM as no intermediate series have to be created (esp. when HOFs are stacked one upon another)
+- benefit: lookups over streams will make streams process only the part of the data, up to the item looked for
+- drawback: should be slower than series iteration
+
+We could make block HOFs eager, and function HOFs lazy. FP addicts should like that ;)
+
+`zip` (over 2+ series) is a particularily good candidate for a stream: not much use in holding the zipped series, usually we will just pass it to foreach.
+
+### Providing an index
 
 
+
+### Foreach
+
+
+
+### Map-each
+
+### Filter
+
+### Sift
+
+### Part/limit
 
 *TO BE CONTINUED... ;)*
 
