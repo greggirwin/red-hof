@@ -509,7 +509,7 @@ Filter expression consists of 2 parts: optional *selector* and optional *tests*
 
 **Selector** can take one of these forms:
 
-| Selector&nbsp;form | Meaning |
+| Selector&nbsp;form_____ | Meaning |
 | :-- | :-- |
 | Omitted | Tests will be applied to every item, starting from the 1st |
 | `[1 2 3 ..]` | Treat data as having 3 columns, their values will be referred to by their numbers |
@@ -542,16 +542,12 @@ Q: Should `sift`, `locate` and especially `locate/back` with negative selector j
 
 **Subjects**
 
-<small>
-
-| Subject form | Example | Meaning |
+| Subject form | Example__________________________________ | Meaning |
 | :--  | :--     | :--     |
 | an integer | `3 has 'value` | Test `has 'value` is applied to the value in column #3 |
 | a word | `x: 3 x pair! (print x)` | Type test `pair!` is applied to the value of word `x`, which must be set previously in the spec to a column number. It is useful when using a Red expression as a test. |
 | nothing | `[1 - 3 .. integer!]` | Type test `integer!` is applied to all non-hyphenated columns values, which consitute *the default subject*. It is currently the only way to test multiple values at once. |
 | brackets | `[1 2 .. /x [integer! >= (0) < (100)]]` | Locally replaces default subject: tests `integer!`, `>= 0` and `< 100` are applied to `/x` subpath of both 1st and 2nd column values. Immediately fails if any value has no such subpath. |
-
-</small>
 
 **Tests** are an ordered chain of conditional expressions on items (similar to `all`). If a test fails, ones to the right of it are not tried.
 
@@ -559,7 +555,7 @@ Tests are run against particular columns, but they decide if **whole row** passe
 - single failure = whole row is discarded
 - all tests pass = whole row is passed
 
-| Test form | Example | Meaning |
+| Test&nbsp;form_____ | Example_______________________ | Meaning |
 | :--  | :--     | :--     |
 | `(expr)` | `[x: 1 y: 2 (myfunc x y)]` | Evaluates Red `expr` (every time!), passes if the result is not `none` or `false`. |
 | `= (expr)` (any logical op) | `[1 2 .. 1 = (yes) 2 = (no)]` | Passes if `subject op (expr)` is not `none` or `false`. |
@@ -621,12 +617,12 @@ Should streams be read-only (not good but..), it will be **applicable to** `fore
 
 ### One EACH to rule 'em all
 
-This model is a unification of block-oriented and func-oriented approaches.
+This model is a **unification** of block-oriented and func-oriented approaches.
 Along the lines of [`headless.red`](../headless.red), but that's just a quick teaser. 
 Constructing a function each time is too costly for general use.
 OTOH, if `each` could return a lightweight iterator, then it might make sense to.
 
-This iterator would hold (think of these as slots, holding routines or empty):
+This **iterator would hold** (think of these as slots, holding routines or empty):
 - the data source(s) if any
 - words to be set on each iteration
 - current location
@@ -634,24 +630,24 @@ This iterator would hold (think of these as slots, holding routines or empty):
 
 It is thus different from a stream that has only to hold the data source and location, so may require it's own datatype. Or not?
 
-Primary levers it would expose are:
+Primary **levers** it would expose are:
 - move the data pointer forth (maybe using a filter)
 - do so a number of times
 - do so backwards
-- set all the words at the current location (separately from the above)
+- set all the words at the current location (separately from the movement)
 
-And optionally:
+And **optionally**:
 - replace the data at the current location (if data source is not read-only)
 - reverse the default iteration direction (not sure about use cases ☻)
 
-Possible benefits this iterator may provide:
-- Manual creation of all sorts of highly specialized iterators and generators. Think iterators on tables that know their format, infinite sequences, time/date generators.
-- Possibility to pass iterators around as first class values. Stop and resume in another place (forall-like, but general) at will. Disperse them among different functions that handle only specific value patterns. Thinks data providers, maybe DB modules, that would give out iterators for convenient use..
-- Separate complex filters can be applied to the items (single word, not the whole `if ... ` construct requiring a new indentation level).
-- A common interface will be shared by many loops. It should be extendable via user-provided functions or routines.
-- `each` will implement `/reverse`, `/stride`, `/case` and `/same` refinements once, lifting the burden from all receivers,
+**Possible benefits** this iterator may provide:
+- **Manual creation** of all sorts of highly specialized iterators and generators. Think iterators on tables that know their format, infinite sequences, time/date generators.
+- Possibility to **pass iterators around** as first class values. Stop and resume in another place (forall-like, but general) at will. Disperse them among different functions that handle only specific value patterns. Thinks data providers, maybe DB modules, that would give out iterators for convenient use..
+- **Separate complex filters** can be applied to the items (as a single word, not the whole `if ... ` construct requiring a new indentation level).
+- A **common interface** will be shared by many loops. It should be extendable via user-provided functions or routines.
+- `each` will **implement** `/reverse`, `/stride`, `/case` and `/same` **refinements once**, lifting the burden from all receivers,
 while the receivers will only be responsible for their own specific refinements (e.g. `/self` for maps).
-- But the *reddest* benefit lies in giving users more expressive power. In things that we can't foresee yet.
+- But the *reddest* benefit lies in giving users more **expressive power**. In things that we can't foresee yet.
 
 `all` (or rather `every` or `all-of`) can be a simpler iterator, with only one word to set and step = 1. `for all xs [...]`
 
