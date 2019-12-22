@@ -69,7 +69,7 @@ Also I'm sure there are still miscategorized examples present. If you happen to 
 Some more work can be done here. Like, how many examples will benefit from having `foreach [:value]` or `foreach [datatype!]` enhancements.
 
 ---
-P.S. And here's the most epic foreach loop I've encountered (enjoy ☺):
+P.S. And here's the most epic foreach loop I've encountered (enjoy ☺). It showcases the need to have `pick` & `skip` on graphs (trees):
 ```
 	foreach manage face/manage [
 		do
