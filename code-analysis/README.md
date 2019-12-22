@@ -150,7 +150,7 @@ Footnotes:
 
 <sup>3</sup> accumulators not including map (which is kind of fold too)
 
-<sup>4</sup> spread of filtering of the incoming data, *across all meanings*
+<sup>4</sup> spread of filtering of the incoming data, *across all meanings*. This column emphasizes the importance of having fast and concise filters.
 
 ### Map: in-place vs another target
 
@@ -194,31 +194,43 @@ So anything doable on R/S level should work.
 
 ## Idiomatic block HOFs vs FP-like function HOFs
 
+**Compilability**
+
 @dockimbel emphasizes:
 > it seems that it would be good to **support both** block-oriented and function-oriented HOF, and use user-friendly naming (e.g. accumulate) for the former and more common names for the latter (e.g. fold).
 > Note that HOF with **functions** (instead of blocks) can **be compiled** while block-oriented ones can't (unless we add annotations to let the compiler know that the body block contains code. In tight loops, it can make a significant speed difference.
 
 See also [non-literal body blocks issue](#indirect-non-literal-body-blocks)
 
-**Another point** to consider is **laziness**: some HOFs may return a **stream** (as a port for example) with inputs and transformation defined.
+**Laziness**
+
+Some HOFs may return a **stream** (as a port for example) with inputs and transformation defined.
 This stream may fetch items upon request or even allow modification of the input (for maps), or go backwards when we ask (for reversibility).
 - benefit: requires less RAM as no intermediate series have to be created (esp. when HOFs are stacked one upon another)
 - benefit: lookups over streams will make streams process only the part of the data, up to the item looked for
 - drawback: should be slower than series iteration
 
 We could make block HOFs eager, and function HOFs lazy. FP addicts should like that ;)
-See also [November 21, 2019 6:54 PM](https://gitter.im/red/HOF?at=5dd6b331986060548953f30a)
+See also [November 21, 2019 6:54 PM](https://gitter.im/red/HOF?at=5dd6b331986060548953f30a).
+
+Think also filter streams capable of back-propagating the changes into the input.
 
 `zip` (over 2+ series) is a particularily good candidate for a stream: not much use in holding the zipped series, usually we will just pass it to foreach.
 
 This of course requires streams implementation (ports or whatever) to be lightweight.
 
-**Yet one more point** is features **composition**.
+**Features composition**
 
 We can extend `*each` spec with index and filters (e.g. `foreach [pos: x (integer!)] ..`, but this won't be a good fit for traditional function-oriented HOFs,
 where to add an index one would `zip` the series with a numeric sequence, to add a filter one would insert a `filter` HOF into a chain.
 
+**Refinements**
 
+Red uses refinements a lot. Function HOFs can't leverage that: `map srs :mold/all` is not allowed. That doesn't stop us from writing lambda-functions to wrap that: `map srs func [x] [mold/all x]`.
+
+**Arity**
+
+Typically, HOFs accept unary functions. This doesn't fit Red, as series are often used as tables. Thus, function-oriented HOFs, to be on par with block-oriented ones, should use function's spec to determine how many items it takes from the series at once.
 
 ## Providing an index
 
@@ -250,6 +262,8 @@ Note that index in any form does not make sense for maps (`foreach [k v] map`).
 
 ## Graph (also tree, linked list) traversal
 
+Of course it is not as widespread as series traversal, but it is much more complex to reimplement, so it's importance should not be judged by it's spread % only.
+
 There are 4 traversal **directions** on graphs, and 5 on trees:
 - from a node to it's subnodes, then to next adjacent node (this is how `foreach-face` visits)
 - from a node to it's subnodes, then to previous adjacent node
@@ -270,6 +284,7 @@ I also think that `foreach-face` should be implemented using a general graph-acc
 Why so? Imagine we descended into a subnode then stopped. If we then pass this subnode to `foreach` we will never ascend back to the parent node and visit it's siblings.
 By holding also the starting node, it is able to ascend until all nodes next to the starting one are visited. This also limits the applicability of `next` and `back`-like functions to graphs (but not to proper iterators on graphs).
 
+Q: One of the key points, if we have a graph with arrows and nodes, expressed with the same `node!` datatype, **do we skip arrows** or process everything? [Inline filters](#inline-filters) can be the answer, but will require an extension. Custom iterators are another, probably better answer.
 
 ## 2D (pair) iteration
 
@@ -292,8 +307,8 @@ If exposed, **it should** likely, when called:
 - do a **skip** according to `foreach` spec, considering the number of items and whether they pass the filter expressions
 - do **NOT set words** in `foreach` spec, as that will make it much harder to reason about `foreach`'s body behavior, even trivial examples like `map-each x s [advance x]` could deceive the user - it looks like 1-to-1 mapping of odd items, but it's not
 - **return the new location** in the series, so that one may use `set` on it to manually set the words to the new data
+- **return none** if there's nowhere to advance (met the tail)
 - let `foreach`'s next iteration continue on from the location where `advance` left it (that's the main point)
-
 
 ## Foreach
 
@@ -342,7 +357,7 @@ Like modifying every `pair!` in draw block or you name it.
 With normal maps, it is not that clear what is best. But if we go with `/self` refinement, we have to provide consistency.
 Otherwise, there must be 2 map-eachs, one in-place, one normal, each with it's own treatment of filtered out items. E.g. `map-each` and `remap-each`.
 
-But **most important** point here is to define **`continue` and `break`** behavior (also `break/return` and `advance`). And their interplay.
+But **most important** point here is to define **`continue` and `break`** behavior (also `break/return` and `advance`). And their **interplay** with each other and refinements (namely, `/sep`).
 
 **Continue**
 
@@ -441,6 +456,8 @@ Not to facilitate splitting `foreach` spec into separate lines, but to take a fe
 
 A separate benefit from `foreach [:value]` kind of filters is leverage of **fast lookups** on hash tables.
 A drawback is that all `-each` funcs will have to support `/same` and `/case` refinements to control comparison strictness.
+
+Another benefit is that we can add inline filters into `map-each/self` or `map-each` that uses items' indexes. Whereas if we pass the result of `filter` into `map`, we **can't affect the original and we lose the index info**.
 
 **Value filters**
 
@@ -616,6 +633,8 @@ Parens can be omitted in many cases. Perhaps everywhere where an expression is e
 `map-parse pattern series body` - for: `parse series [any [change pattern (do body) | skip]]`. At least 7 examples of it.
 
 They are cleaner than plain parse and more general than `foreach`/`map-each`. And also more verbose, and do not inherit the benefits of `find` on hashes. And they inherit all `parse` bugs ;)
+
+While `foreach` on string types examines separate characters, `forparse`/`map-parse` can work with whole substrings.
 
 Also good point WRT vectors: https://github.com/red/red/issues/4194
 Parse-based iterators won't work on vectors. Find-based will (to the extent of `find` vector support).
