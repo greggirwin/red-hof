@@ -175,12 +175,12 @@ So anything doable on R/S level should work.
 ### Idiomatic block HOFs vs FP-like function HOFs
 
 @dockimbel emphasizes:
-> it seems that it would be good to support both block-oriented and function-oriented HOF, and use user-friendly naming (e.g. accumulate) for the former and more common names for the latter (e.g. fold).
-> Note that HOF with functions (instead of blocks) can be compiled while block-oriented ones can't (unless we add annotations to let the compiler know that the body block contains code. In tight loops, it can make a significant speed difference.
+> it seems that it would be good to **support both** block-oriented and function-oriented HOF, and use user-friendly naming (e.g. accumulate) for the former and more common names for the latter (e.g. fold).
+> Note that HOF with **functions** (instead of blocks) can **be compiled** while block-oriented ones can't (unless we add annotations to let the compiler know that the body block contains code. In tight loops, it can make a significant speed difference.
 
 See also [non-literal body blocks issue](#indirect-non-literal-body-blocks)
 
-**Another point** to consider is laziness: some HOFs may return a **stream** (as a port for example) with inputs and transformation defined.
+**Another point** to consider is **laziness**: some HOFs may return a **stream** (as a port for example) with inputs and transformation defined.
 This stream may fetch items upon request or even allow modification of the input (for maps), or go backwards when we ask (for reversibility).
 - benefit: requires less RAM as no intermediate series have to be created (esp. when HOFs are stacked one upon another)
 - benefit: lookups over streams will make streams process only the part of the data, up to the item looked for
@@ -193,7 +193,7 @@ See also [November 21, 2019 6:54 PM](https://gitter.im/red/HOF?at=5dd6b331986060
 
 This of course requires streams implementation (ports or whatever) to be lightweight.
 
-**Yet one more point** is features composition.
+**Yet one more point** is features **composition**.
 
 We can extend `*each` spec with index and filters (e.g. `foreach [pos: x (integer!)] ..`, but this won't be a good fit for traditional function-oriented HOFs,
 where to add an index one would `zip` the series with a numeric sequence, to add a filter one would insert a `filter` HOF into a chain.
@@ -246,7 +246,7 @@ One thing I don't like about `ascend` name though is that it talks about a tree 
 
 I also think that `foreach-face` should be implemented using a general graph-accepting `foreach`.
 
-Graph iterator is a bit different from series iterators: it has to **hold** not only the current, but also the **starting node**.
+**Graph iterator** is a bit different from series iterators: it has to **hold** not only the current, but also the **starting node**.
 Why so? Imagine we descended into a subnode then stopped. If we then pass this subnode to `foreach` we will never ascend back to the parent node and visit it's siblings.
 By holding also the starting node, it is able to ascend until all nodes next to the starting one are visited. This also limits the applicability of `next` and `back`-like functions to graphs (but not to proper iterators on graphs).
 
@@ -322,9 +322,9 @@ Like modifying every `pair!` in draw block or you name it.
 With normal maps, it is not that clear what is best. But if we go with `/self` refinement, we have to provide consistency.
 Otherwise, there must be 2 map-eachs, one in-place, one normal, each with it's own treatment of filtered out items. E.g. `map-each` and `remap-each`.
 
-But **most important** point here is to define `continue` and `break` behavior (also `break/return` and `advance`). And their interplay.
+But **most important** point here is to define **`continue` and `break`** behavior (also `break/return` and `advance`). And their interplay.
 
-**`continue`**
+**Continue**
 
 `/only` disables an option to remove items. Returning `[]` is no longer an option. We can use `continue` to do that:
 - pros: mimicks `collect [foreach [..]]`, where `continue` does not involve `keep`
@@ -336,7 +336,7 @@ But **most important** point here is to define `continue` and `break` behavior (
 I think it's most reasonable to let `continue` pass items from source into target untouched. `map-each [anything..] src [continue]` then becomes an identity map.
 We should also consider it's meaning for other functions, like `take-while`.
 
-**`break`**
+**Break**
 
 Two options:
 - pass all leftover items as is
@@ -351,7 +351,7 @@ Again, I think the 1st option is the way to go.
 
 `break/return`: discards the collected series obviously, unless `map-each/self` is used (then it commits the data first). Can be used for error propagation, fallbacks.
 
-**`advance`** within `map-each`
+**Advance** within `map-each`
 
 Perhaps, it should do what `continue` does with items (pass as is or remove, whatever decided).
 
@@ -416,10 +416,10 @@ See [the laziness idea](#idiomatic-block-hofs-vs-fp-like-function-hofs) though. 
 ### Inline filters
 
 The point here is not to add whole `any`/`all` expression blocks into `foreach` spec and cover everything (as it adds nothing).
-The point is to be able to write clean one-liners for the majority of the use cases.
+The point is to be able to write **clean one-liners** for the majority of the use cases.
 Not to facilitate splitting `foreach` spec into separate lines, but to take a few lines (and a few levels of indentation) from the loop body and reduce it into a few words.
 
-A separate benefit from `foreach [:value]` kind of filters is leverage of fast lookups on hash tables.
+A separate benefit from `foreach [:value]` kind of filters is leverage of **fast lookups** on hash tables.
 A drawback is that all `-each` funcs will have to support `/same` and `/case` refinements to control comparison strictness.
 
 **Value filters**
@@ -509,7 +509,7 @@ Filter expression consists of 2 parts: optional *selector* and optional *tests*
 
 **Selector** can take one of these forms:
 
-| Selector form | Meaning |
+| Selector&nbsp;form | Meaning |
 | :-- | :-- |
 | Omitted | Tests will be applied to every item, starting from the 1st |
 | `[1 2 3 ..]` | Treat data as having 3 columns, their values will be referred to by their numbers |
@@ -536,9 +536,13 @@ locate/back srs [1 - .. 1 <= (4)]      ;) = [3 4  5 6  7]  - counts pairs from h
 
 Q: Should `sift`, `locate` and especially `locate/back` with negative selector jump to tail automatically? I think it's useful most of the time, but it does not allow one to start from the current position.
 
+---
+
 *Tests* are applied to *Subjects*.
 
 **Subjects**
+
+<small>
 
 | Subject form | Example | Meaning |
 | :--  | :--     | :--     |
@@ -546,6 +550,8 @@ Q: Should `sift`, `locate` and especially `locate/back` with negative selector j
 | a word | `x: 3 x pair! (print x)` | Type test `pair!` is applied to the value of word `x`, which must be set previously in the spec to a column number. It is useful when using a Red expression as a test. |
 | nothing | `[1 - 3 .. integer!]` | Type test `integer!` is applied to all non-hyphenated columns values, which consitute *the default subject*. It is currently the only way to test multiple values at once. |
 | brackets | `[1 2 .. /x [integer! >= (0) < (100)]]` | Locally replaces default subject: tests `integer!`, `>= 0` and `< 100` are applied to `/x` subpath of both 1st and 2nd column values. Immediately fails if any value has no such subpath. |
+
+</small>
 
 **Tests** are an ordered chain of conditional expressions on items (similar to `all`). If a test fails, ones to the right of it are not tried.
 
