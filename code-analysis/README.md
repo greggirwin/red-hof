@@ -1,4 +1,4 @@
-This is a WIP **analysis** of loop constructs written by various people for various real-world projects in R2, R3 and Red.
+This is an **analysis** of loop constructs written by various people for various real-world projects in R2, R3 and Red.
 It's aim is to provide a solid ground for **decision making** about what kind of **HOFs design** should Red follow,
 to find out where design's theoretical beauty becomes clumsiness in practice,
 and where is the balance between HOFs internal complexity and that of users code.
