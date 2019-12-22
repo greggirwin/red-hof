@@ -134,7 +134,8 @@ set-focus: function [
 
 ---
 - climbs up, constructing the path
-- could be `keep-each/reverse x start-path [..]`
+- could be `map-each/reverse x start-path [..]`
+- `faces: sift (take-while x ascend start-path [x <> window/gob]) [is not (none)]  insert path bulk [faces/*/data/gob-face]` ?
 ```
     while [start-path <> window/gob] [
         if start-path/data/gob-face [insert path start-path/data/gob-face]

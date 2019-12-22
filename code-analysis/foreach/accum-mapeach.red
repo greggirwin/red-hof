@@ -2022,7 +2022,7 @@ foreach item temp [
 			]
 		]
 
-; keep-each could get this rid of `keep`
+; map-each could get this rid of `keep`
 		foreach part para [
 			case [
 				string? part [keep part]

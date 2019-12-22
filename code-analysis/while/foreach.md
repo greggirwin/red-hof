@@ -415,7 +415,7 @@
 ```
 ---
 - `foreach [:name y] base [append result y]`
-- `append result keep-each [:name y] base [y]`
+- `append result extract keep-each [:name y] base [yes] 2` (map-each might not work here)
 - `rejoin sift result [- 2 .. 1 = (name)]`
 ```
     while [not none? base: find/skip base name 2][
