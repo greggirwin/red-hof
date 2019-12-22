@@ -596,7 +596,7 @@ Tests are run against particular columns, but they decide if **whole row** passe
 | :--  | :--     | :--     |
 | `(expr)` | `[x: 1 y: 2 (myfunc x y)]` | Evaluates Red `expr` (every time!), passes if the result is not `none` or `false`. |
 | `= (expr)` (any logical op) | `[1 2 .. 1 = (yes) 2 = (no)]` | Passes if `subject op (expr)` is not `none` or `false`. |
-| `is (expr)` | `[is (now)]` | Equivalent of `= (expr)`, looks better without a subject |
+| `is (expr)` | `[is (now)]` | Equivalent of `= (expr)`, looks better without a subject, or when testing *every* item |
 | `is same (expr)` | `[is same (my-blk)]` | Equivalent of `=? (expr)` |
 | | | I haven't invented the form for strict (`==`) comparison alias (maybe `is strictly (expr)`, but it's somewhat long). |
 | `has (expr)` | `[2 has (pair!)]` | Evaluates `find subject (expr)`, passes if `subject` is a series, and result is not `none`. |
