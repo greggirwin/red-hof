@@ -605,9 +605,10 @@ Tests are run against particular columns, but they decide if **whole row** passe
 | `type!` | `[1 integer!]` | A shortcut for the above, only allowed if the word (`integer!`) is bound to a `type!` or `typeset!` value. |
 | `subject` | `[/subpath]` | Passes if subject exists, i.e. here every item must have a `/subpath` |
 | `word: test` | `[x: /1 y: (print x)]` | Sets word to a value of the next test, always passes (if that test passes too), i.e. here `x` is set to first subitem of every item, and `y` to `unset` (result of `print`) |
+| `test or test` | `[/style = 'connect or /parent-style = 'connect]` | Allows left test to fail, if right one succeeds. Can be chained. Maybe use `|` instead of `or`? |
 
 Right now the only words allowed to appear in spec are:
-- keywords: `is`, `in`, `has`, `same`, `type`, logical operators.
+- keywords: `is`, `in`, `has`, `same`, `type`, `or`, logical operators.
 - those previously defined as set-words in it (`x: .. x = 1`)
 - Red words that evaluate to types and typesets (`2 default!`).
 
