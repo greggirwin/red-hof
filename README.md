@@ -152,3 +152,7 @@ inputs seen so far, and even reactively connect that to other aggregators
 or functions/consumers (see functional reactive programming). 
 
 Aggregated partitioning is something to consider.
+
+## apply 
+
+See [`apply.md`](apply.md)
