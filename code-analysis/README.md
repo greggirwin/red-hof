@@ -1,4 +1,4 @@
-This is a WIP **analysis** of loop constructs written by various people for various real-world projects in R2, R3 and Red.
+This is an **analysis** of loop constructs written by various people for various real-world projects in R2, R3 and Red.
 It's aim is to provide a solid ground for **decision making** about what kind of **HOFs design** should Red follow,
 to find out where design's theoretical beauty becomes clumsiness in practice,
 and where is the balance between HOFs internal complexity and that of users code.
@@ -9,7 +9,27 @@ and where is the balance between HOFs internal complexity and that of users code
 - [Loop/Meaning matrix](#loopmeaning-matrix)
   * [Map: in-place vs another target](#map-in-place-vs-another-target)
   * [Index: numeric vs series](#index-numeric-vs-series)
+  * [Other stats](#other-stats)
 - [Proposed designs and their coverage](#proposed-designs-and-their-coverage)
+  * [Idiomatic block HOFs vs FP-like function HOFs](#idiomatic-block-hofs-vs-fp-like-function-hofs)
+  * [Providing an index](#providing-an-index)
+  * [Graph (also tree, linked list) traversal](#graph-also-tree-linked-list-traversal)
+  * [2D (pair) iteration](#2d-pair-iteration)
+  * [On-demand advancement](#on-demand-advancement)
+  * [Foreach](#foreach)
+  * [Map-each](#map-each)
+  * [Remove-each & Keep-each](#remove-each--keep-each)
+  * [Filter](#filter)
+  * [Inline filters](#inline-filters)
+  * [Sift/Locate](#siftlocate)
+    + [Syntax](#syntax)
+  * [Forparse/Map-parse](#forparsemap-parse)
+  * [Part/Limit](#partlimit)
+  * [One EACH to rule 'em all](#one-each-to-rule-em-all)
+  * [Bulk syntax](#bulk-syntax)
+  * [\*-while](#-while)
+  * [Count](#count)
+  * [Indirect (non-literal) body blocks](#indirect-non-literal-body-blocks)
 
 
 ## Data sample
@@ -130,7 +150,7 @@ Footnotes:
 
 <sup>3</sup> accumulators not including map (which is kind of fold too)
 
-<sup>4</sup> spread of filtering of the incoming data, *across all meanings*
+<sup>4</sup> spread of filtering of the incoming data, *across all meanings*. This column emphasizes the importance of having fast and concise filters.
 
 ### Map: in-place vs another target
 
@@ -165,14 +185,16 @@ These are approximate numbers, likely more than less:
 - 10 examples required `max-of` or `min-of` aggregate
 
 
-## Proposed designs and their coverage
+# Proposed designs and their coverage
 
 One of the problems about loops is that they currently have to be implemented in compiler (as so-called 'intrinsics').
 It's abilities there are so limited that even checking a counter is a big and tedious task.
 Thankfully though, both `foreach` and `remove-each` are compiled as calls to their respective natives: `foreach-next`, `foreach-init`, etc.
 So anything doable on R/S level should work.
 
-### Idiomatic block HOFs vs FP-like function HOFs
+## Idiomatic block HOFs vs FP-like function HOFs
+
+**Compilability**
 
 @dockimbel emphasizes:
 > it seems that it would be good to **support both** block-oriented and function-oriented HOF, and use user-friendly naming (e.g. accumulate) for the former and more common names for the latter (e.g. fold).
@@ -180,27 +202,37 @@ So anything doable on R/S level should work.
 
 See also [non-literal body blocks issue](#indirect-non-literal-body-blocks)
 
-**Another point** to consider is **laziness**: some HOFs may return a **stream** (as a port for example) with inputs and transformation defined.
+**Laziness**
+
+Some HOFs may return a **stream** (as a port for example) with inputs and transformation defined.
 This stream may fetch items upon request or even allow modification of the input (for maps), or go backwards when we ask (for reversibility).
 - benefit: requires less RAM as no intermediate series have to be created (esp. when HOFs are stacked one upon another)
 - benefit: lookups over streams will make streams process only the part of the data, up to the item looked for
 - drawback: should be slower than series iteration
 
 We could make block HOFs eager, and function HOFs lazy. FP addicts should like that ;)
-See also [November 21, 2019 6:54 PM](https://gitter.im/red/HOF?at=5dd6b331986060548953f30a)
+See also [November 21, 2019 6:54 PM](https://gitter.im/red/HOF?at=5dd6b331986060548953f30a).
+
+Think also filter streams capable of back-propagating the changes into the input.
 
 `zip` (over 2+ series) is a particularily good candidate for a stream: not much use in holding the zipped series, usually we will just pass it to foreach.
 
 This of course requires streams implementation (ports or whatever) to be lightweight.
 
-**Yet one more point** is features **composition**.
+**Features composition**
 
 We can extend `*each` spec with index and filters (e.g. `foreach [pos: x (integer!)] ..`, but this won't be a good fit for traditional function-oriented HOFs,
 where to add an index one would `zip` the series with a numeric sequence, to add a filter one would insert a `filter` HOF into a chain.
 
+**Refinements**
 
+Red uses refinements a lot. Function HOFs can't leverage that: `map srs :mold/all` is not allowed. That doesn't stop us from writing lambda-functions to wrap that: `map srs func [x] [mold/all x]`.
 
-### Providing an index
+**Arity**
+
+Typically, HOFs accept unary functions. This doesn't fit Red, as series are often used as tables. Thus, function-oriented HOFs, to be on par with block-oriented ones, should use function's spec to determine how many items it takes from the series at once.
+
+## Providing an index
 
 There is a **big demand** to have an index during iteration, in no less than 10% of all loops.
 This makes people abandon the so-user-friendly `foreach` in favor of more low level loop constructs.
@@ -228,7 +260,9 @@ Then there are filtered loops, e.g. `foreach [i: x (string!)]` or `foreach [i: :
 
 Note that index in any form does not make sense for maps (`foreach [k v] map`).
 
-### Graph (also tree, linked list) traversal
+## Graph (also tree, linked list) traversal
+
+Of course it is not as widespread as series traversal, but it is much more complex to reimplement, so it's importance should not be judged by it's spread % only.
 
 There are 4 traversal **directions** on graphs, and 5 on trees:
 - from a node to it's subnodes, then to next adjacent node (this is how `foreach-face` visits)
@@ -250,8 +284,9 @@ I also think that `foreach-face` should be implemented using a general graph-acc
 Why so? Imagine we descended into a subnode then stopped. If we then pass this subnode to `foreach` we will never ascend back to the parent node and visit it's siblings.
 By holding also the starting node, it is able to ascend until all nodes next to the starting one are visited. This also limits the applicability of `next` and `back`-like functions to graphs (but not to proper iterators on graphs).
 
+Q: One of the key points, if we have a graph with arrows and nodes, expressed with the same `node!` datatype, **do we skip arrows** or process everything? [Inline filters](#inline-filters) can be the answer, but will require an extension. Custom iterators are another, probably better answer.
 
-### 2D (pair) iteration
+## 2D (pair) iteration
 
 It makes sense to write `foreach [xy: color] image [..]`, traversing an image row-by-row then col-by-col inside rows.
 This form supports both numeric (as pair) and series index.
@@ -259,7 +294,7 @@ This form supports both numeric (as pair) and series index.
 There can however be a need for the same 2D iteration **over a range given by a pair**, so if we support this, we should also support 
 `for xy 1x1 10x10` or `repeat xy 10x10` or both. `for` can even be a mezz over `repeat`, for it's use is very sparse and unlikely worth a native.
 
-### On-demand advancement
+## On-demand advancement
 
 Some examples benefit from this. To skip an item (using it or not), or to skip a whole bunch of items:
 a positive number, where data record size depends on the data. Backward advancement can be considered but I haven't met any use cases.
@@ -272,10 +307,10 @@ If exposed, **it should** likely, when called:
 - do a **skip** according to `foreach` spec, considering the number of items and whether they pass the filter expressions
 - do **NOT set words** in `foreach` spec, as that will make it much harder to reason about `foreach`'s body behavior, even trivial examples like `map-each x s [advance x]` could deceive the user - it looks like 1-to-1 mapping of odd items, but it's not
 - **return the new location** in the series, so that one may use `set` on it to manually set the words to the new data
+- **return none** if there's nowhere to advance (met the tail)
 - let `foreach`'s next iteration continue on from the location where `advance` left it (that's the main point)
 
-
-### Foreach
+## Foreach
 
 `foreach`, when powered by index and filters, becomes an almost all-encompassing iteration tool.
 However, a care should be taken, since the more we add to it, the more we lose when for some reason we have to fall back to plain `while`.
@@ -294,7 +329,7 @@ Third option is the one currently implemented and the one that makes most sense,
 
 Q: Should foreach **wait for a stream** or not (think real-time processing and infinite streams)? Should a port flag control this behavior, or should there be functions that convert a waiting port into non-waiting one and back?
 
-### Map-each
+## Map-each
 
 Examples show that `map-each` should **not** be limited to **one-to-one** mapping. A single item can be replaced by many, many - by one.
 
@@ -322,7 +357,7 @@ Like modifying every `pair!` in draw block or you name it.
 With normal maps, it is not that clear what is best. But if we go with `/self` refinement, we have to provide consistency.
 Otherwise, there must be 2 map-eachs, one in-place, one normal, each with it's own treatment of filtered out items. E.g. `map-each` and `remap-each`.
 
-But **most important** point here is to define **`continue` and `break`** behavior (also `break/return` and `advance`). And their interplay.
+But **most important** point here is to define **`continue` and `break`** behavior (also `break/return` and `advance`). And their **interplay** with each other and refinements (namely, `/sep`).
 
 **Continue**
 
@@ -370,7 +405,7 @@ One possibility is to use `unset` or `none` values to remove items (along with t
 
 Q: how should `map-each [x y z] srs [reduce [x y z]]` treat `srs: [1 2]`? Pass `z` as `none` and let the output be longer than input?
 
-### Remove-each & Keep-each
+## Remove-each & Keep-each
 
 These two can mirror each other (one removes on false, the other on true). Sometimes one looks cleaner, sometimes another. `keep-each` is not the best name though, maybe more ambiguous than `filter`. 
 
@@ -407,13 +442,13 @@ But if we go the R2 way, how do we explain to `on-deep-change*` (which accepts k
 This problem also concerns in-place maps.
 
 
-### Filter
+## Filter
 
 Whenever I try this in examples, it's always second-rate to `remove-each`/`keep-each`.
 See [the laziness idea](#idiomatic-block-hofs-vs-fp-like-function-hofs) though. `filter` may return a stream.
 
 
-### Inline filters
+## Inline filters
 
 The point here is not to add whole `any`/`all` expression blocks into `foreach` spec and cover everything (as it adds nothing).
 The point is to be able to write **clean one-liners** for the majority of the use cases.
@@ -421,6 +456,8 @@ Not to facilitate splitting `foreach` spec into separate lines, but to take a fe
 
 A separate benefit from `foreach [:value]` kind of filters is leverage of **fast lookups** on hash tables.
 A drawback is that all `-each` funcs will have to support `/same` and `/case` refinements to control comparison strictness.
+
+Another benefit is that we can add inline filters into `map-each/self` or `map-each` that uses items' indexes. Whereas if we pass the result of `filter` into `map`, we **can't affect the original and we lose the index info**.
 
 **Value filters**
 
@@ -453,7 +490,7 @@ Can be rewritten as:
 - `map-each/self [x [block!]] tmp [:x/1]`
 
 
-### Sift/Locate
+## Sift/Locate
 
 The **idea** behind these two is to **remove the syntactic noise** from trivial filter expressions.
 To do the thing that is meaningful in 95% cases, without further ado.
@@ -498,7 +535,7 @@ There are plenty examples thoughout: see [remove-each](remove-each.md), [forall]
 * `sift` is a high-level filter. It produces a new series (or stream?). It thus loses the connection with the input data.
 * `locate` is a high-level lookup. It returns the input at the expected location.
 
-#### Syntax
+### Syntax
 
 The syntax of `sift` and `locate` is mostly similar, but not complete. Nor there any model impelementations.
 
@@ -509,7 +546,7 @@ Filter expression consists of 2 parts: optional *selector* and optional *tests*
 
 **Selector** can take one of these forms:
 
-| Selector&nbsp;form | Meaning |
+| Selector&nbsp;form_____ | Meaning |
 | :-- | :-- |
 | Omitted | Tests will be applied to every item, starting from the 1st |
 | `[1 2 3 ..]` | Treat data as having 3 columns, their values will be referred to by their numbers |
@@ -542,16 +579,12 @@ Q: Should `sift`, `locate` and especially `locate/back` with negative selector j
 
 **Subjects**
 
-<small>
-
-| Subject form | Example | Meaning |
+| Subject form | Example__________________________________ | Meaning |
 | :--  | :--     | :--     |
 | an integer | `3 has 'value` | Test `has 'value` is applied to the value in column #3 |
 | a word | `x: 3 x pair! (print x)` | Type test `pair!` is applied to the value of word `x`, which must be set previously in the spec to a column number. It is useful when using a Red expression as a test. |
 | nothing | `[1 - 3 .. integer!]` | Type test `integer!` is applied to all non-hyphenated columns values, which consitute *the default subject*. It is currently the only way to test multiple values at once. |
 | brackets | `[1 2 .. /x [integer! >= (0) < (100)]]` | Locally replaces default subject: tests `integer!`, `>= 0` and `< 100` are applied to `/x` subpath of both 1st and 2nd column values. Immediately fails if any value has no such subpath. |
-
-</small>
 
 **Tests** are an ordered chain of conditional expressions on items (similar to `all`). If a test fails, ones to the right of it are not tried.
 
@@ -559,11 +592,11 @@ Tests are run against particular columns, but they decide if **whole row** passe
 - single failure = whole row is discarded
 - all tests pass = whole row is passed
 
-| Test form | Example | Meaning |
+| Test&nbsp;form_____ | Example_______________________ | Meaning |
 | :--  | :--     | :--     |
 | `(expr)` | `[x: 1 y: 2 (myfunc x y)]` | Evaluates Red `expr` (every time!), passes if the result is not `none` or `false`. |
 | `= (expr)` (any logical op) | `[1 2 .. 1 = (yes) 2 = (no)]` | Passes if `subject op (expr)` is not `none` or `false`. |
-| `is (expr)` | `[is (now)]` | Equivalent of `= (expr)`, looks better without a subject |
+| `is (expr)` | `[is (now)]` | Equivalent of `= (expr)`, looks better without a subject, or when testing *every* item |
 | `is same (expr)` | `[is same (my-blk)]` | Equivalent of `=? (expr)` |
 | | | I haven't invented the form for strict (`==`) comparison alias (maybe `is strictly (expr)`, but it's somewhat long). |
 | `has (expr)` | `[2 has (pair!)]` | Evaluates `find subject (expr)`, passes if `subject` is a series, and result is not `none`. |
@@ -572,9 +605,10 @@ Tests are run against particular columns, but they decide if **whole row** passe
 | `type!` | `[1 integer!]` | A shortcut for the above, only allowed if the word (`integer!`) is bound to a `type!` or `typeset!` value. |
 | `subject` | `[/subpath]` | Passes if subject exists, i.e. here every item must have a `/subpath` |
 | `word: test` | `[x: /1 y: (print x)]` | Sets word to a value of the next test, always passes (if that test passes too), i.e. here `x` is set to first subitem of every item, and `y` to `unset` (result of `print`) |
+| `test or test` | `[/style = 'connect or /parent-style = 'connect]` | Allows left test to fail, if right one succeeds. Can be chained. Maybe use \| instead of `or`? |
 
 Right now the only words allowed to appear in spec are:
-- keywords: `is`, `in`, `has`, `same`, `type`, logical operators.
+- keywords: `is`, `in`, `has`, `same`, `type`, `or`, logical operators.
 - those previously defined as set-words in it (`x: .. x = 1`)
 - Red words that evaluate to types and typesets (`2 default!`).
 
@@ -593,7 +627,7 @@ Parens can be omitted in many cases. Perhaps everywhere where an expression is e
 - `locate` returns once match is found, it does not process the rest
 
 
-### Forparse/Map-parse
+## Forparse/Map-parse
 
 `forparse pattern series body` can be considered a syntactic sugar for: `parse series [any [pattern (do body) | skip]]`. At least 8 examples of it.
 
@@ -601,12 +635,14 @@ Parens can be omitted in many cases. Perhaps everywhere where an expression is e
 
 They are cleaner than plain parse and more general than `foreach`/`map-each`. And also more verbose, and do not inherit the benefits of `find` on hashes. And they inherit all `parse` bugs ;)
 
+While `foreach` on string types examines separate characters, `forparse`/`map-parse` can work with whole substrings.
+
 Also good point WRT vectors: https://github.com/red/red/issues/4194
 Parse-based iterators won't work on vectors. Find-based will (to the extent of `find` vector support).
 
 Refinements need to be thought about yet... Also proper `break`/`continue` support...
 
-### Part/Limit
+## Part/Limit
 
 Also 2D limit, for loops over images.
 
@@ -619,14 +655,14 @@ Pretty silly to reimplement the same `/part` logic over and over in each functio
 Should streams be read-only (not good but..), it will be **applicable to** `foreach`, `map-each` and other readonly HOFs, but also all aggregators, all vector arithmetic, set operations, reduce/compose/compress etc. With write (into the input series) capabilities, it extends to `map-each/self` (most notably), `forall`, `bind`, `trim`, `random`, `replace`, `complement`, `alter`.
 
 
-### One EACH to rule 'em all
+## One EACH to rule 'em all
 
-This model is a unification of block-oriented and func-oriented approaches.
+This model is a **unification** of block-oriented and func-oriented approaches.
 Along the lines of [`headless.red`](../headless.red), but that's just a quick teaser. 
 Constructing a function each time is too costly for general use.
 OTOH, if `each` could return a lightweight iterator, then it might make sense to.
 
-This iterator would hold (think of these as slots, holding routines or empty):
+This **iterator would hold** (think of these as slots, holding routines or empty):
 - the data source(s) if any
 - words to be set on each iteration
 - current location
@@ -634,24 +670,24 @@ This iterator would hold (think of these as slots, holding routines or empty):
 
 It is thus different from a stream that has only to hold the data source and location, so may require it's own datatype. Or not?
 
-Primary levers it would expose are:
+Primary **levers** it would expose are:
 - move the data pointer forth (maybe using a filter)
 - do so a number of times
 - do so backwards
-- set all the words at the current location (separately from the above)
+- set all the words at the current location (separately from the movement)
 
-And optionally:
+And **optionally**:
 - replace the data at the current location (if data source is not read-only)
 - reverse the default iteration direction (not sure about use cases ☻)
 
-Possible benefits this iterator may provide:
-- Manual creation of all sorts of highly specialized iterators and generators. Think iterators on tables that know their format, infinite sequences, time/date generators.
-- Possibility to pass iterators around as first class values. Stop and resume in another place (forall-like, but general) at will. Disperse them among different functions that handle only specific value patterns. Thinks data providers, maybe DB modules, that would give out iterators for convenient use..
-- Separate complex filters can be applied to the items (single word, not the whole `if ... ` construct requiring a new indentation level).
-- A common interface will be shared by many loops. It should be extendable via user-provided functions or routines.
-- `each` will implement `/reverse`, `/stride`, `/case` and `/same` refinements once, lifting the burden from all receivers,
+**Possible benefits** this iterator may provide:
+- **Manual creation** of all sorts of highly specialized iterators and generators. Think iterators on tables that know their format, infinite sequences, time/date generators.
+- Possibility to **pass iterators around** as first class values. Stop and resume in another place (forall-like, but general) at will. Disperse them among different functions that handle only specific value patterns. Thinks data providers, maybe DB modules, that would give out iterators for convenient use..
+- **Separate complex filters** can be applied to the items (as a single word, not the whole `if ... ` construct requiring a new indentation level).
+- A **common interface** will be shared by many loops. It should be extendable via user-provided functions or routines.
+- `each` will **implement** `/reverse`, `/stride`, `/case` and `/same` **refinements once**, lifting the burden from all receivers,
 while the receivers will only be responsible for their own specific refinements (e.g. `/self` for maps).
-- But the *reddest* benefit lies in giving users more expressive power. In things that we can't foresee yet.
+- But the *reddest* benefit lies in giving users more **expressive power**. In things that we can't foresee yet.
 
 `all` (or rather `every` or `all-of`) can be a simpler iterator, with only one word to set and step = 1. `for all xs [...]`
 
@@ -664,7 +700,7 @@ On the outside, there still will be two-word shortcuts, like `keep-each`, `take-
 
 ...This is a deep topic and needs more thought and exploration, experiments...
 
-### Bulk syntax
+## Bulk syntax
 
 Somewhat cleaner syntax for trivial cases of `foreach`/`map-each`, `bulk` syntax allows to apply the same set of expressions to each item in a series. Not a huge win here. Sometimes no win at all ;)
 
@@ -685,13 +721,13 @@ Can be applicable to graphs using functions that convert graph iteration into se
 May be extended to scalars (tuples, pairs), where `foreach` can't work: `bulk/map [tuple/*]` would unpack all tuple items.
 
 
-### \*-while
+## \*-while
 
 There are examples that would benefit from (there may be more, not counted):
 - `remove-while` (4 examples)
 - `count-while` (6 examples)
 
-### Count
+## Count
 
 Used in only like 2 examples. But it's great :)
 Just a mezz wrapper for `while [find..] [n: n + 1]` that delivers intent very clearly.
@@ -706,7 +742,7 @@ Should accept `find` refinements:
 - `/only` for block expansion control
 - `/skip` for tabular data
 
-### Indirect (non-literal) body blocks
+## Indirect (non-literal) body blocks
 
 Gregg asked:
 
