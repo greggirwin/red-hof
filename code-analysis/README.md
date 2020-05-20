@@ -654,6 +654,10 @@ Pretty silly to reimplement the same `/part` logic over and over in each functio
 
 Should streams be read-only (not good but..), it will be **applicable to** `foreach`, `map-each` and other readonly HOFs, but also all aggregators, all vector arithmetic, set operations, reduce/compose/compress etc. With write (into the input series) capabilities, it extends to `map-each/self` (most notably), `forall`, `bind`, `trim`, `random`, `replace`, `complement`, `alter`.
 
+An interesting note about /part in general is: how to apply it? It is a source of some ambiguity. In non-trivial cases, e.g.:<br>
+`append/part "" [100 200 300 400] 3` - currently applies `part` to the formed value, i.e. the result is "100", although it could have been "100200300" just the same.<br>
+The proposed `part` function will obviously apply the limit to the original series: `(part [100 200 300 400] 3) = [100 200 300]`, so at least it would be unambiguous about this. Should one want to apply the limit to the formed value, one could use `part form ... 3` instead.
+
 
 ## One EACH to rule 'em all
 
