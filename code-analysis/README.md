@@ -346,8 +346,27 @@ With `map-each` we want to be able to (considering inline filtering):
 - `/only` - just a sugar over `map-each [x] .. [reduce [:x]]`: `map-each/only [x] .. [:x]`
 - `/self` - uses `change` on the source series (or rather mimicks it in a faster way), forming values if source is a string
 - `/sep` - insert a separator between each group of items (e.g. `map-each/sep [x y] [1 2 3 4] [x] '|` = `[1 | 3]`). Should also separate filtered out item groups.
+- `/drop` - filtered out items won't be included into the output
 - `/eval` - reduce returned blocks automatically. For one, is simplifies many map expressions, as typing `reduce` is boring.
-For two, it greatly reduces GC load and speeds things up, because it reduces right into the output buffer, without allocations. Should or not this be the default behavior? I think not, because it is dangerous, unable to tell a literal block from one resulting from an item: `map-each/eval [x] src [:x]` looks like an identity map, but it's not: if `src = [ [code] [code] [code] ]`, each `x = [code]` and it will evaluate `code`.
+For two, it greatly reduces GC load and speeds things up, because it reduces right into the output buffer, without allocations. 
+
+Should or not `/eval` (active evaluation) be the default behavior?\
+Problem is we're unable to tell a literal block from one resulting from an item: `map-each/eval [x] src [:x]` looks like an identity map, but it's not: if `src = [ [a] [b] [c] ]` it will result in `[a b c]`
+
+So:
+- Evaluating behavior is needed just as often as non-evaluating
+- Active `/eval` can be turned into passive with `quote`:
+```
+>> map-each x s [:x]
+== [a b c d]
+>> map-each/eval x s [compose [quote (:x)]]
+== [a b c d]
+>> map-each/only x s [:x]
+== [[a] b c [d]]
+>> map-each/eval x s [reduce ['quote (:x)]]
+== [[a] b c [d]]
+```
+However, obviously these workarounds are too much work for such a simple task, and I conclude that both active and passive modes are necessary. Be it `/eval` active + default passive, or default active + `/pass` passive, both options are acceptable (but IMO former is preferred).
 
 **Filtered out items**
 
@@ -368,8 +387,7 @@ But **most important** point here is to define **`continue` and `break`** behavi
 - cons: inconsistent with `remove-each`, which doesn't touch items on `continue`
 - cons: inconsistent with items skipped by a filter (these items are handled without user code, which is similar to `continue`)
 
-I think it's most reasonable to let `continue` pass items from source into target untouched. `map-each [anything..] src [continue]` then becomes an identity map.
-We should also consider it's meaning for other functions, like `take-while`.
+After some thought and one important consideration: given `spec` may not match some regions of data if it has filters, I decided that `continue` should not affect the behavior of keeping or discarding filtered out regions. Instead, a `/drop` refinement should control that. `continue` alone cannot affect e.g. data region before the first successful match.
 
 **Break**
 
@@ -382,13 +400,13 @@ On truncation:
 - cons: doesn't go very well with in-place maps, practically destroying the series, which is never the intent (and when it is, one can `clear` it). We usually want `break` to save time by not processing the rest, not to mimick `clear`.
 - cons: inconsistent with `remove-each`, for the same reason
 
-Again, I think the 1st option is the way to go.
+After some thought I decided `/drop` refinement is a natural way to control this behavior.
 
 `break/return`: discards the collected series obviously, unless `map-each/self` is used (then it commits the data first). Can be used for error propagation, fallbacks.
 
 **Advance** within `map-each`
 
-Perhaps, it should do what `continue` does with items (pass as is or remove, whatever decided).
+Most natural option IMO is to move the series index to the next point where spec pattern matches.
 
 Another option is to widen the area for a subsequent `change`:
 ```
@@ -698,7 +716,37 @@ Consider `for` and `map` natives that accept such iterator and instead of `forea
 
 On the outside, there still will be two-word shortcuts, like `keep-each`, `take-while` as `keep` and `take` are one-off funcs, and it's just shorter and cleaner this way.
 
-...This is a deep topic and needs more thought and exploration, experiments...
+A more advanced (yet still simplistic for practical use) experiment - [headless2.red](../headless2.red) shows how this model could work:
+```
+>> for-each x [1 2 3] [print x]
+1
+2
+3
+== unset
+>> map-each x [1 2 3] [x * 2]
+== [2 4 6]
+>> keep-each x [1 2 3] [x * 2]
+== [2 4 6]
+>> remove-each x [1 2 3] [odd? x]
+== [2]
+>> print' each x [1 2 3]
+1
+2
+3
+== unset
+>> print' apply' double each x [1 2 3]
+2
+4
+6
+== unset
+>> change-each [x y] [1 2 3 4] [[y x]]
+== [2 1 4 3]  
+>> change-each [x y] [1 2 3 4] [[y + x]]
+== [3 7]
+```
+In this model `-each` wrapper funcs become relatively simple (but still have their quirks, like changing length when mapping series into itself).\
+Good news is we can always switch from `-each` model to iterator model later, not breaking anything.\
+Bad news is no matter how long I look at iterator versions, they're less readable and for all added complexity and cognitive load their benefits seem ephemeral. Yes, we will be able to reuse them in new loops, and create new iterators for use with existing loops, but practical value of it all is pretty low IMO.
 
 ## Bulk syntax
 
