@@ -156,3 +156,9 @@ Aggregated partitioning is something to consider.
 ## apply 
 
 See [`apply.md`](apply.md)
+
+## trace / trace-deep
+
+See the idea in https://gitlab.com/hiiamboris/red-mezz-warehouse#general-purpose
+
+Nenad says will be provided natively by the interpreter. [Some of his thoughts on this, `apply`, and other stuff](https://gitter.im/red/red?at=5eb0048d31a6d25d7caa1fc2)

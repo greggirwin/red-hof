@@ -125,5 +125,8 @@ Benefits:
 - Very self-documenting, does not force reader to look the spec up
 - Secure against adding new arguments to existing refinements. Renaming of refinement's arguments will cause runtime error - not a bad thing, as that may imply a change in argument's type/meaning.
 
+## More
+
+See also the [Revault page](https://github.com/revault/rebol-wiki/wiki/Apply) by Chris Ross-Gill. It concentrates on goal (4) and approach 1. Nice argument there about possible error messages. I suggest we should support both passing function by name (word/path) and by value. Name will enhance error reports, while value will allow to call `apply` where only the value is available. Note that we can't use function literals to construct paths, so `apply` will be the only way to specify refinements to a function known by value.
 
 
