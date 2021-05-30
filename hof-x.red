@@ -9,6 +9,7 @@ Red [
 ;		See https://github.com/dockimbel/Red/blob/master/BSL-License.txt
 ;	}
 ;   https://github.com/RenaudG/red-utilities/blob/master/funclib.red
+;	https://docs.python.org/3/library/itertools.html
 ]
 
 comment {
@@ -859,6 +860,44 @@ res: map-js "Hello World!" func [v] [either v = #"o" [1][0]]	; sum result = coun
 res: map-js "Hello World!" func [v i] [if v = #"o" [i]]			; remove none! values to keep only index values
 res: map-js "Hello World!" func [v i s] [if v = #"o" [at s i]]	; remove none! values to keep only series offsets
 
+map-ex: func [
+	"Evaluates a function for all values in a series and returns the results."
+	series [series!]
+	fn [any-function!] "Function to perform on each value; called with value, index, series, [? and size ?] args"
+	;/only "Collect block types as single values"
+	;/skip "Treat the series as fixed size records"
+	;	size [integer!]
+][
+	collect [
+		repeat i length? series [   ; use FORSKIP if we want to support /SKIP.
+			keep/only fn series/:i :i :series ;:size
+		]
+	]
+]
+res: map-ex [1 2 3 a b c #d #e #f] :form
+res: map-ex [1 2 3 a b c #d #e #f] func [v i] [reduce [i v]]
+res: map-ex [1 2 3 a b c #d #e #f] func [v i s] [reduce [i v s]]
+res: map-ex "Hello World!" func [v i s] [pick s i]
+res: map-ex "Hello World!" func [v] [either v = #"o" [1][0]]	; sum result = count
+res: map-ex "Hello World!" func [v i] [if v = #"o" [i]]			; remove none! values to keep only index values
+res: map-ex "Hello World!" func [v i s] [if v = #"o" [at s i]]	; remove none! values to keep only series offsets
+
+; Minimal map-ex: no /skip, always /only
+map-ex: func [
+	"Evaluates a function for all values in a series and returns the results."
+	series [series!]
+	fn [any-function!] "Function to perform on each value; called with value, index, series args"
+][
+	collect [
+		repeat i length? series [
+			keep/only fn series/:i :i :series
+		]
+	]
+]
+res: map-ex [1 2 3 a b c #d #e #f] :form
+res: map-ex [1 2 3 a b c #d #e #f] func [v i] [reduce [i v]]
+res: map-ex [1 2 3 a b c #d #e #f] func [v i s] [reduce [i v s]]
+
 ;-------------------------------------------------------------------------------
 
 default: func [
@@ -1110,7 +1149,40 @@ map-each v "IBM" [v - 1]
 map-each x [1 2 3 4 5] [either even? x [continue] [x]]
 map-each x [1 2 3 4 5] [either even? x [break] [x]]
 
+; As it is in Red right now.
+apply: func [
+    "Apply a function to a block of arguments." 
+    fn [any-function!] "Function to apply" 
+    args [block!] "Arguments for function" 
+    /only "Use arg values as-is, do not reduce the block"
+][
+    args: either only [copy args] [reduce args] 
+    do head insert args :fn
+]
 
+apply: function [
+    "Apply a function to a block of arguments." 
+    fn [any-function!] "Function to apply" 
+    args [block!] "Arguments for function" 
+    /only "Use arg values as-is, do not reduce the block"
+    /all  "Apply (map) the function to each value in args"
+][
+    args: either only [copy args] [reduce args]
+    either all [
+		collect [
+			foreach value args [
+				;keep/only apply :fn reduce [value]
+				attempt [keep/only fn value]	; attempt for unset values that keep doesn't like.
+			]
+		]
+    ][
+    	do head insert args :fn
+    ]
+]
+apply :print [1 2]
+apply/all :print [1 2]
+
+    
 ;ref-name: func [
 ;	refs [word! refinement! block!]
 ;][
@@ -1429,6 +1501,63 @@ e.g. [
 	copy-while b func [v][v <= 3]
 ]
 
+do-while: function [
+	"Evaluate a function for each matching value, until the first non-match"
+	series	[series!]
+	test	[any-function!] "Test (predicate) to perform on each value; must take one arg"
+	body    [any-function!] "Must take one arg"
+][
+	print mold :test
+	repeat i find-while series :test [
+		body pick series i
+	]
+]
+e.g. [
+	b: [1 2 3 4 5 6 7 8 9 10]
+	do-while b func [v][v <= 3] :print
+	; Have to be careful using ALL with *-while. 
+	;do-while b func [v][probe v all [v <= 7  odd? v]] :print
+]
+
+
+;-------------------------------------------------------------------------------
+; Idea noted, but discarded for the moment.
+
+; This is bad because we can't walk a series and modify it at the same time.
+; Not easily and safely at the mezz level anyway.
+do-while: function [
+	"Test for each value in a series, until one fails, evaluating body for those that pass."
+	test	[any-function!] "Test (predicate) to perform on each value; must take one arg"
+	series	[series!] "(may be modified)"
+	body    [block!] "Block to evaluate for matching items"
+][
+	;bind body 'series
+	repeat i length? series [
+		probe pick series i
+		if test pick series i [do body]
+	]
+	series
+]
+e.g. [
+	blk: [1 2 3 4 5 6 7 8 9 10]
+	; terrible to have an anonymous func first for readability
+	do-while func [v][v <= 5]  blk  [take blk]
+
+]
+
+while-each: function [
+	"Test for each value in a series, until one fails, evaluating body for those that pass."
+	'word
+	test	[any-function!] "Test (predicate) to perform on each value; must take one arg"
+	series	[series!] "(may be modified)"
+	body    [block!] "Block to evaluate for matching items"
+][
+	repeat i length? series [
+		if test pick series i [do body]
+	]
+	series
+]
+
 ;-------------------------------------------------------------------------------
 
 ; Macros
@@ -1511,3 +1640,12 @@ remove-each-and-count v [1 2 3 4 5 6 7 8 9 10] [odd? v]
 twice: func [fn [any-function!] x][fn fn x]
 add-3: func [n][n + 3]
 twice :add-3 7
+
+;-------------------------------------------------------------------------------
+
+; https://www.wolfram.com/language/elementary-introduction/2nd-ed/26-pure-anonymous-functions.html
+
+; Wolfram pure func syntax lets you put a # placeholder for an arg
+; in a func call, which is then replaced by each value in the series
+; being mapped over.
+
