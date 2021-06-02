@@ -249,7 +249,7 @@ Obviously there's no point in having both integer and series index in a single l
 Then there are filtered loops, e.g. `foreach [i: x (string!)]` or `foreach [i: :value]`. Loop body does not know how many items have been skipped before an accepted value was found. It becomes even more valuable then to provide an absolute index, while the iteration number one can always deduce by inserting `n: n + 1` into the loop body.
 
 So, **numeric** index can have the following **meanings**:
-| # | meaning | values it takes in `foreach [/i x [integer!] y] next next [1 2 3 4 aa 6 bb 8 9 10 11 12]` | in `foreach/reverse [/i x [integer!] y] tail [1 2 3 4 aa 6 bb 8 9 10 11 12]` |
+| # | meaning | values it takes in `foreach [/i x [integer!] y] next next [1 2 3 4 aa 6 bb 8 9 10 11 12]` | in `foreach/reverse [/i x [integer!] y] [1 2 3 4 aa 6 bb 8 9 10 11 12]` |
 |-|:-|:-|:-|
 | 1 | iteration number | `1 2 3` (2 pairs skipped due to filtering) | `1 2 3 4` (at items 11,9,3,1 respectively) |
 | 2 | iteration number including skipped iterations | `1 4 5` | `1 2 5 6` |
