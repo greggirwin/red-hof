@@ -140,7 +140,7 @@ The following table summarizes how each **loop** served to achieve one or other 
 
 Footnotes:
 
-<sup>1</sup>`total % (rel % on trees, rel % of lookups)`, e.g. `foreach/foreach 44% (6%)` means:
+<sup>1</sup>`total % (rel % on trees)`, e.g. `foreach/foreach 44% (6%)` means:
 - 44% of all `foreachs` were indeed `foreach`s by meaning
 - 6% of those 44% = 2.5% of all `foreach`s - were traversing trees (as `foreach-face` no doubt)
 
