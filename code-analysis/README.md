@@ -494,7 +494,7 @@ Can be rewritten
 
 **Type filters**
 
-`foreach [x (typeset!) y z]` only executes it's body where 1st item is of typeset `typeset!`. I'm not sure about parens or block syntax (or path `x/typeset!`?). Blocks can be used for item decomposition: `foreach [ [x y z] ] [ [1 2 3] [4 5 6] ] [...]`. But it's a very rare case, and `set [x y z] value` works just fine. Parens look cleaner inside block spec. But not compose-deep-friendly. Blocks with types remind functions spec dialect.
+`foreach [x (typeset!) y z]` only executes it's body where 1st item is of typeset `typeset!`. I'm not sure about parens or block syntax (or path `x/typeset!`?). Blocks can be used for item decomposition: `foreach [ [x y z] ] [ [1 2 3] [4 5 6] ] [...]`. But it's a very rare case, and `set [x y z] value` works just fine, and it's also ambiguous a bit: does `foreach [x y]` mean "decompose each item into x and y" or "take two items as x and y"? Parens look cleaner inside block spec. But not compose-deep-friendly. Blocks with types remind functions spec dialect.
 
 Q: Should it support multiple typesets? Should it support an optional `not` keyword that negates the typeset? Examples do not seem to provide any use cases for this.
 
