@@ -248,6 +248,24 @@ Obviously there's no point in having both integer and series index in a single l
 
 Then there are filtered loops, e.g. `foreach [i: x (string!)]` or `foreach [i: :value]`. Loop body does not know how many items have been skipped before an accepted value was found. It becomes even more valuable then to provide an absolute index, while the iteration number one can always deduce by inserting `n: n + 1` into the loop body.
 
+So, **numeric** index can have the following **meanings**:
+| # | meaning | values it takes in `foreach [/i x [integer!] y] next next [1 2 3 4 aa 6 bb 8 9 10 11 12]` | in `foreach/reverse [/i x [integer!] y] tail [1 2 3 4 aa 6 bb 8 9 10 11 12]` |
+|-|:-|:-|:-|
+| 1 | iteration number | `1 2 3` (2 pairs skipped due to filtering) | `1 2 3 4` (at items 11,9,3,1 respectively) |
+| 2 | iteration number including skipped iterations | `1 4 5` | `1 2 5 6` |
+| 3 | index of first item in the spec, relative to head | `3 9 11` | `11 9 3 1` |
+| 4 | index of first item in the spec, relative to series | `1 7 9` | `-2 -4 -10 -12` |
+| 5 | index relative to series, but divided by spec length | `1 4 5` so it's index of a pair in this example | `-1 -2 -5 -6` |
+
+I understand that majority of case will be like `foreach [/i x] series` so all these meanings will align. However it is imperative to choose and clearly define a single one.\
+(1) can be obtained with dumb `i: i + 1` line even if we choose another meaning, so it's not very important\
+(2) cannot be obtained easily for the general case (need to consider filtering, direction, starting offset, etc. - easier to reimplement the filter manually)
+(3) with `foreach [p: ..] .. [i: index? p ..]`, so that's easy too\
+(4) a bit trickier: `i: 1 + offset? series p`\
+(5) even more tricky: `i: 1 + to 1 (offset? series p) / width`\
+(4) and (5) I find hard to reason about and explain, and I think for these cases an explicit computation should be used instead of an index you get "for free"\
+So, my choice would be (2) for it's simplicity of meaning and somewhat higher importance.
+
 **Series** index considerations:
 - it is better at accessing **adjacent items**: `foreach [pos: x y] ser [.. pos/-1 .. pos/3 ..]`
 - it is **easier to reason** about: `foreach [pos: x y] ser` naturally tells one that `pos:` is set to `ser` just before the `x` value
