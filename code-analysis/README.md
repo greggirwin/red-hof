@@ -264,6 +264,7 @@ I understand that majority of case will be like `foreach [/i x] series` so all t
 (4) a bit trickier: `i: 1 + offset? series p`\
 (5) even more tricky: `i: 1 + to 1 (offset? series p) / width`\
 (4) and (5) I find hard to reason about and explain, and I think for these cases an explicit computation should be used instead of an index you get "for free"\
+(3) and (4) in case of iterating over image can be pairs, the rest cannot\
 So, my choice would be (2) for it's simplicity of meaning and somewhat higher importance.
 
 **Series** index considerations:
