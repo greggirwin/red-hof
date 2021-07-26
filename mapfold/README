@@ -1,1 +1,19 @@
 these should be compiled as `red -c -d ...`
+
+```
+Summing 1000000 floats using internal addition
+3.96 ms [accumulate 0.0 v :add]
+result is 1.0e-10 (pairwise/vector)
+
+Summing 1000000 floats using native 'add'
+48.0 ms [accumulate 0.0 b :add]
+result is 1.000000000023104e-10 (block)
+
+Summing 1000000 floats using routine 'add'
+92.1 ms [accumulate 0.0 b :rou-add]
+result is 1.000000000023104e-10 (block)
+
+Summing 1000000 floats using function 'add'
+240 ms  [accumulate 0.0 b :fun-add]
+result is 1.000000000023104e-10 (block)
+```
