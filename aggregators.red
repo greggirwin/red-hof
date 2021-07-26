@@ -430,3 +430,68 @@ sa/update 100
 sa/update 1000
 sa/result
 
+;-------------------------------------------------------------------------------
+
+; What if we make a multi-aggregator. That is, one that stores multiple
+; aggregate values that can later be queried. The inner funcs could 
+; even be user defined. It just means storing more fields, avoiding name
+; collisions, and defining an spec for user funcs.
+; This is, of course, very wasteful for count aggregates. And the more
+; aggregates you and, and the more complex they are, the more you waste
+; in the simple cases. So you could make the constructor smart, using
+; tags as keys for what to include.
+
+make-multi-aggregator: func [tags] [
+	make aggregator-proto compose/deep [
+		tags:  ['aggregator (tags)]  ; Could call it 'type, but want to standardize on 'tags for general use
+		state: [
+			count:	0
+			min:	0
+			max:	0
+			sum:	0
+			avg:	0
+		]
+		update: func [value [number!]][
+			state/count: state/count + 1
+			state/min: min state/min value 
+			state/max: max state/max value
+			state/sum: state/sum + value
+			state/avg: state/sum / state/count
+			
+		]
+		result: does [copy state]
+	]
+]
+
+; https://github.com/graphite-project/carbon/blob/master/lib/carbon/aggregator/rules.py
+;def percentile(factor):
+;  def func(values):
+;    if values:
+;      values = sorted(values)
+;      rank = factor * (len(values) - 1)
+;      rank_left = int(floor(rank))			round/floor
+;      rank_right = int(ceil(rank))			round/ceiling
+;
+;      if rank_left == rank_right:
+;        return values[rank_left]
+;      else:
+;        return values[rank_left] * (rank_right - rank) + values[rank_right] * (rank - rank_left)
+;
+;  return func
+;
+;
+;AGGREGATION_METHODS = {
+;  'sum': sum,
+;  'avg': avg,
+;  'min': min,
+;  'max': max,
+;  'p50': percentile(0.50),
+;  'p75': percentile(0.75),
+;  'p80': percentile(0.80),
+;  'p90': percentile(0.90),
+;  'p95': percentile(0.95),
+;  'p99': percentile(0.99),
+;  'p999': percentile(0.999),
+;  'count': count,
+;}
+
