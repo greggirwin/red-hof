@@ -3,9 +3,6 @@ Red [
 	purpose: "Fast implementation of the most common higher order functions"
 	author:  @hiiamboris
 	license: 'BSD-3
-	notes: {
-
-	}
 ]
 
 ; system/state/trace: 2
@@ -277,7 +274,7 @@ accumulate: routine [
 ]
 
 ;-- another name option: `apply-to-each` (quite verbose, nonstandard)
-map: routine [
+map*: routine [
 	"Evaluate the function over each item in the series"
 	;-- Haskell-like argument order
 	mapfunc [any-type!] "Any unary function (or a word referring to one)"
@@ -409,7 +406,7 @@ map: routine [
 	as red-block! stack/set-last as cell! result
 ]
 
-
+map: :map*												;@@ workaround for #4930
 
 
 ;-- this is how FP junkies expect the interface to be (uses Haskell-like name & argument order)
@@ -519,5 +516,72 @@ minimum-of: func [
 		(sum list) * 1.0 / length? list
 	]
 }
+
+
+partition: function [
+	"Split given list into two: with items passing the test, and those not"
+	list [any-list!]
+	test [function! native! action! routine! word!] "Unary function (or a word referring to one)"
+	return: [block!] "[[passing...] [failing...]]"
+][
+	r: copy/deep [[] []]
+	logic: map :test list
+	repeat i length? logic [
+		; append/only pick r to logic! logic/:i :list/:i
+		append/only either logic/:i [r/1][r/2] :list/:i
+	]
+	r
+]
+
+; if true [
+comment [
+	;-- Alternate implementations:
+	;-- 50-70% slower (compiled), because of `do` most likely
+	;-- require no temporary buffer
+	;-- do not support word argument (worse at error reporting)
+
+	partition2: function [
+		"Split given list into two: with items passing the test, and those not"
+		list [any-list!]
+		test [function! native! action! routine!] "Unary function"
+		return: [block!] "[[passing...] [failing...]]"
+	][
+		accumulate
+			copy/deep [[] []]
+			list
+			func [acc x [any-type!]] [
+				append/only either do [test :x] [acc/1][acc/2] :x		;@@ `do` is required as compiler won't call the function
+				acc
+			]
+	]
+
+	partition3: function [
+		"Split given list into two: with items passing the test, and those not"
+		list [any-list!]
+		test [function! native! action! routine!] "Unary function"
+		return: [block!] "[[passing...] [failing...]]"
+	][
+		r: copy/deep [[] []]
+		repeat i length? list [
+			append/only either do [test :list/:i] [r/1][r/2] :list/:i	;@@ `do` is required as compiler won't call the function
+		]
+		r
+	]
+
+	do %/d/devel/red/common/clock.red
+	recycle/off
+	do [
+		list: [] repeat i 100000 [append list i]
+		clock/times [partition  list 'odd?] 100
+		clock/times [partition2 list :odd?] 100
+		clock/times [partition3 list :odd?] 100
+	]
+
+	probe partition  [1 2 3 4 5 6 7] :odd?
+	probe partition2 [1 2 3 4 5 6 7] :odd?
+	probe partition3 [1 2 3 4 5 6 7] 'odd?
+]
+
+
 
 

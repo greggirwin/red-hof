@@ -1,4 +1,4 @@
-these should be compiled as `red -c -d ...`
+these should be compiled as `red -r -d ...`
 
 ```
 Summing 1000000 floats using internal addition

@@ -259,6 +259,10 @@ test [scan :add 1 next [1 2 3 4 5 6]]
 ; probe fold ["abc"] :+ #"b"
 
 
+test [partition [1 2 3 4 5 6 7] :odd?]
+=== [[1 3 5 7] [2 4 6]]
+
+
 ; probe accumulate 1 make vector! [2] :add
 ; probe accumulate 1 make vector! [2 3] :add
 ; probe accumulate 1 make vector! [2 3 4] :add
