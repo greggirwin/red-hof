@@ -519,16 +519,16 @@ minimum-of: func [
 
 
 partition: function [
-	"Split given list into two: with items passing the test, and those not"
-	list [any-list!]
+	"Split given series into two: with items passing the test, and those not"
+	series [series!]
 	test [function! native! action! routine! word!] "Unary function (or a word referring to one)"
 	return: [block!] "[[passing...] [failing...]]"
 ][
 	r: copy/deep [[] []]
-	logic: map :test list
+	logic: map :test series
 	repeat i length? logic [
-		; append/only pick r to logic! logic/:i :list/:i
-		append/only either logic/:i [r/1][r/2] :list/:i
+		; append/only pick r to logic! logic/:i :series/:i
+		append/only either logic/:i [r/1][r/2] :series/:i
 	]
 	r
 ]
@@ -541,14 +541,14 @@ comment [
 	;-- do not support word argument (worse at error reporting)
 
 	partition2: function [
-		"Split given list into two: with items passing the test, and those not"
-		list [any-list!]
+		"Split given series into two: with items passing the test, and those not"
+		series [series!]
 		test [function! native! action! routine!] "Unary function"
 		return: [block!] "[[passing...] [failing...]]"
 	][
 		accumulate
 			copy/deep [[] []]
-			list
+			series
 			func [acc x [any-type!]] [
 				append/only either do [test :x] [acc/1][acc/2] :x		;@@ `do` is required as compiler won't call the function
 				acc
@@ -556,14 +556,14 @@ comment [
 	]
 
 	partition3: function [
-		"Split given list into two: with items passing the test, and those not"
-		list [any-list!]
+		"Split given series into two: with items passing the test, and those not"
+		series [series!]
 		test [function! native! action! routine!] "Unary function"
 		return: [block!] "[[passing...] [failing...]]"
 	][
 		r: copy/deep [[] []]
-		repeat i length? list [
-			append/only either do [test :list/:i] [r/1][r/2] :list/:i	;@@ `do` is required as compiler won't call the function
+		repeat i length? series [
+			append/only either do [test :series/:i] [r/1][r/2] :series/:i	;@@ `do` is required as compiler won't call the function
 		]
 		r
 	]
@@ -581,7 +581,6 @@ comment [
 	probe partition2 [1 2 3 4 5 6 7] :odd?
 	probe partition3 [1 2 3 4 5 6 7] 'odd?
 ]
-
 
 
 
