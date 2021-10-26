@@ -13,8 +13,8 @@ Red [
 ]
 
 comment {
-	apply (map)
-	accumulate (fold, reduce)
+	apply (map)					[collect opt transform]
+	accumulate (fold, reduce)	summarize
 	filter (select)				remove-each/keep-each
 	sort						sort
 	group
