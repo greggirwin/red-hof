@@ -278,8 +278,7 @@ map*: routine [
 	"Evaluate the function over each item in the series"
 	;-- Haskell-like argument order
 	mapfunc [any-type!] "Any unary function (or a word referring to one)"
-	; series  [series!]		;@@ CRASHES - see #4927
-	series  [series!] "Each item is used a an argument to the function"
+	series  [series!] "Each item is used a an argument to the function"		;-- requires #4927 fixed
 	return: [block!]
 	/local check-arity [subroutine!] empty-path [red-path!] arity [integer!] p [int-ptr!]
 		fun [red-function!] name [red-word!] code [integer!]
@@ -426,6 +425,7 @@ fold: func [
 ;--  * do WE need it?
 ;--  * how do we name it?
 ;--  * in any case, it does not deserve to be a native IMO
+;@@ it's name conflicts with lexer's `scan` func, so we need another name candidate
 scan: func [
 	"Evaluate the operator over each item in the series"
 	;-- Haskell-like argument order
@@ -581,6 +581,5 @@ comment [
 	probe partition2 [1 2 3 4 5 6 7] :odd?
 	probe partition3 [1 2 3 4 5 6 7] 'odd?
 ]
-
 
 
