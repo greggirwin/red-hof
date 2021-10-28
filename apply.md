@@ -181,7 +181,7 @@ but returning them. `Do-call` or `do-func`?
 https://gitlab.com/hiiamboris/red-mezz-warehouse/-/blob/master/new-apply.red
 
 What I (Boris) want from Nenad is ability to call functions efficiently
-on R/S level using this design right now it's not possible
+on R/S level using this design. Right now it's not possible
 
 Gregg Irwin @greggirwin 12:37
 
@@ -194,26 +194,27 @@ hiiamboris @hiiamboris 12:37
 
 in short:
 
-apply I must be able to walk through function spec and set each argument
+- apply I must be able to walk through function spec and set each argument
 from the context given
-
-apply II must be able (to do the opposite) to walk through it's given
+- apply II must be able (to do the opposite) to walk through it's given
 set-words, lookup each set-word into function argument offset (as O(1))
-and set that argument before calling the func but while working on #4854
+and set that argument before calling the func
+
+But while working on #4854
 we were talking about it and it was clear that one of the reasons apply
 is still not there is because interpreter wasn't implemented to support
 these ways of calling funcs and he seemingly agreed to consider it while
 working on #4854 (because it needs partial rewrite of interpreter
-anyway) it can be later optimization, true
+anyway)
 
-hiiamboris @hiiamboris 12:44
+It can be later optimization, true
 
-as much as I hate not having fast apply, I hate not having any apply even
+As much as I hate not having fast apply, I hate not having any apply even
 more :D
 
 Gregg Irwin @greggirwin 12:47
 
-apply name form is chosen over apply 'name because if we make operator
+> apply name form is chosen over apply 'name because if we make operator
 out of apply it will look better:
 
 This is a tradeoff. Yes, if you make it an op! it's cleaner, but it also
@@ -226,23 +227,21 @@ foundation if so desired.
 hiiamboris @hiiamboris 12:49
 
 But it's so clean written in this way:
-
+```
     my-func => [x: 1 y: 2 s: "abc"]
-
+```
 why it complicates passing something other than a literal?
 
 I agree it's a tradeoff, but what do I sacrifice?
 
-    functions that return function values: apply (get-func 'abc) [x: 1 y: 2]
-    functions defined in line: apply (func [x][x + 1]) [x: 100]
+- functions that return function values: `apply (get-func 'abc) [x: 1 y: 2]`
+- functions defined in line: `apply (func [x][x + 1]) [x: 100]`
 
 both scenarios are rare and advanced
 
-hiiamboris @hiiamboris 12:56
-
-another consideration for this, I didn't found proper words previously...
+Another consideration for this, I didn't found proper words previously...
 remember how Gab calls functions in Topaz?
-
+```
 if 3+ args, the call becomes:
 my-func [
   arg1: value
@@ -250,30 +249,32 @@ my-func [
   arg3: value
   ...
 ]
-
+```
 something Galen ran into recently
-I kinda like that with literal syntax we get this form out of the box:
 
+I kinda like that with literal syntax we get this form out of the box:
+```
 apply my-func [
   arg1: value
   arg2: value
   arg3: value
   ...
 ]
-
+```
 which is tiny thing when we have a few apply calls scattered around, but
 if we consider the possibility of writing our code in the following
-manner where it's appropriate, apply fn becomes preferable to apply 'fn
-(too many lit-words = visual clutter) so, yeah, I understand the risk,
-but I also value code aesthetic enough to prefer this ;)
+manner where it's appropriate, `apply fn` becomes preferable to `apply 'fn`
+(too many lit-words = visual clutter)
+
+so, yeah, I understand the risk, but I also value code aesthetic enough to prefer this ;)
 
 Gregg Irwin @greggirwin 13:02
-
+```
     >> fn: 'append
     == append
     >> help fn
     FN is a word! value: append
-
+```
 Words are normally evaluated. Literal args are the very rare exception,
 and mainly only for console use. So you then have to know to use another
 construct, e.g. get-word or paren, when making the call.
@@ -323,7 +324,9 @@ we can attach a poll to the PR ;)
 Gregg Irwin @greggirwin 13:14
 
 I'll add my review comments to %apply.md.
+
 hiiamboris @hiiamboris 13:28
+
 sure, PR it
 
 Gregg Irwin @greggirwin 13:48
@@ -358,24 +361,24 @@ local may be absent of not known if it's present or not (case when you
 copy the spec from another func), and another 10% use a word from some
 context(object) or from outer function less clutter = cleaner code
 
+besides, apply allows words, not requires them, so you can always write
+context? 'local if it makes sense
+
 Gregg Irwin @greggirwin 14:13
 
 Do you have examples where you use apply ... <word!> in your other code?
 
 hiiamboris @hiiamboris 14:13
 
-besides, apply allows words, not requires them, so you can always write
-context? 'local if it makes sense
-
 I do know of a case yes
 
 I have lots of 'local examples, but one different:
-
+```
 ; my-find: function spec-of :find [
 ;     case: yes
 ;     only: no
 ;     apply find 'only
 ; ]
-
+```
 as a native it doesn't have /local refinement
 
