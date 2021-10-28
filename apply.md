@@ -159,6 +159,8 @@ and therefore *are* evaluated in some special way. This is true to the extent
 that the current implementation lets you chain set-words, making the args
 *not* a pure key-value structure.
 
+  (@hiiamboris here. My comment to "we *don't* know which will be the more common case for args" is: count the occurrences of `construct` in your code vs `object`/`context` and this ratio should be a good first approximation)
+
 - For arg contexts, the word "local" has a very strong meaning which threw
 me off in the example. My gut says to have the user use `context?` explicitly
 in v1 and see what feedback we get.
