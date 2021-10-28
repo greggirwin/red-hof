@@ -148,8 +148,8 @@ use cases to evaluate its design.
 clean ops out of it. The chat shows we discussed the tradeoffs on this quite
 a bit. No easy answer.
 
-- `Apply` args are *not* treated literally by default, and `/verb` (to eval
-them) has the opposite meaning in my mind. "Verb" means action, but here it
+- `Apply` args are *not* treated literally by default, and `/verb` ("verbatim", to treat
+them literally) has the opposite meaning in my mind. "Verb" means action, but here it
 means "literal" or "don't evaluate". Since we *don't* know which will be the
 more common case for args, and it may be split closely, how do we pick the
 default behavior? There are pros and cons to both sides. Having users `reduce`
