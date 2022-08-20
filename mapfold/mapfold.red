@@ -273,6 +273,7 @@ accumulate: routine [
 	stack/unwind-last						;-- copies 'accumulator' (old stack/args+0) into new stack/args+0
 ]
 
+;@@ TODO: /into /part support
 ;-- another name option: `apply-to-each` (quite verbose, nonstandard)
 map*: routine [
 	"Evaluate the function over each item in the series"
@@ -458,13 +459,14 @@ sum: func [
 ]
 
 
-mean: average: function [
+average: function [
 	"Returns the average of all values in the list"
 	list [any-list! vector!]
 	return: [any-type!] "none if list is empty"
 ][
 	if total: sum list [total / length? list]
 ]
+mean: :average
 
 ;@@ TODO: how to define average on tuples so it'll work for all the edge cases?
 ;@@ e.g. average [1.2.3 100 1000 1.#nan] ? average [1.2.3 100.200.300.400 99.99.99.99.99] ?
@@ -477,7 +479,7 @@ minimum-of: func [
 	accumulate :list/1 next list :min
 ]
 
-minimum-of: func [
+maximum-of: func [
 	"Returns biggest value in the list"
 	list [any-list! vector!]
 	return: [any-type!] "none if list is empty"
@@ -582,4 +584,37 @@ comment [
 	probe partition3 [1 2 3 4 5 6 7] 'odd?
 ]
 
+context [
+	square: func [x] [:x * :x]
+	
+	set 'sum-squares function [ 
+		"Returns the sum of squares of all values in the list"
+		list [any-list! vector!]
+		return: [any-type!] "none if list is empty"
+	][
+		sum either vector? list [list * list][map :square list]
+	]
+]
 
+;; stddev of 1 measurement is actually a NaN (undefined), because there isn't enough info to draw conclusions
+;; but it's probably simpler to deal with `none`
+standard-deviation: function [
+	"Returns the statistical corrected standard deviation of a sample"
+	list [any-list! vector!]
+	return: [any-type!] "none if list length is less than two"
+][
+	all [
+		2 <= n: length? list
+		avg: mean list
+		sum2: sum-squares either vector? list [
+			list - avg
+		][
+			map func [x][x - avg] list
+		]
+		sqrt divide sum2 n - 1
+	]
+]
+std-dev: :standard-deviation
+
+probe sum-squares [1 3 10 5 4]
+probe std-dev [1 3 10 5 4]
