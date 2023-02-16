@@ -1498,8 +1498,39 @@ copy-while: function [
 ]
 e.g. [
 	b: [1 2 3 4 5 6]
-	copy-while b func [v][v <= 3]
+	b: copy-while b func [v][v <= 3]
+	?? b
 ]
+
+
+skip-while: function [
+	"Skips items from series head that match test, until one fails; returns series"
+	series	[series!]
+	test	[any-function!] "Test (predicate) to perform on each value; must take one arg"
+][
+	at series 1 + find-while series :test
+]
+e.g. [
+	b: [1 2 3 4 5 6]
+	b: skip-while b func [v][v <= 3]
+	?? b
+	b: [1 2 3 4 5 6]
+	b: skip-while b func [v][v <= 1]
+	?? b
+	b: [1 2 3 4 5 6]
+	b: skip-while b func [v][v <= 0]
+	?? b
+	b: []
+	b: skip-while b func [v][v <= 3]
+	?? b
+	b: [1 2 3 4 5 6]
+	b: skip-while b func [v][v <= 5]
+	?? b
+	b: [1 2 3 4 5 6]
+	b: skip-while b func [v][v <= 9]
+	?? b
+]
+
 
 do-while: function [
 	"Evaluate a function for each matching value, until the first non-match"
