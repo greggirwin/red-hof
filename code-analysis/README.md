@@ -698,6 +698,8 @@ The proposed `part` function will obviously apply the limit to the original seri
 
 ## One EACH to rule 'em all
 
+**2024 update: see the [full proposal here](iterators.md)**
+
 This model is a **unification** of block-oriented and func-oriented approaches.
 Along the lines of [`headless.red`](../headless.red), but that's just a quick teaser. 
 Constructing a function each time is too costly for general use.
