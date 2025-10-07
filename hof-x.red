@@ -20,6 +20,7 @@ comment {
 	group
 }
 
+e.g.: :comment
 
 #include %types.red
 #include %math.red
@@ -218,11 +219,12 @@ fold: accumulate: function [
 	fn     [any-function!] "Must take RESULT and INPUT args, and return RESULT"
 	/with "Use a different starting value than the first in the series" ;/into
 		value "Starting value; used as accumulator"
+	;/safe "Check that FN takes two args of the correct type."
 ][
-	if 1 = length? series [return series/1]
+	if 1 = length? series [return first series]
 	default value first series
 	if not with [incr 'series]
-	;assert 2 = length? words-of :fn
+	;?? assert 2 = length? words-of :fn
 	foreach item series [value: fn :value :item]
 ]
 ; Red should have TCO before we try to do this recursively.
@@ -657,7 +659,7 @@ filter: function [
 filter: partition: function [
 	"Returns two blocks: items that pass the test, and those that don't"
 	series [series!]
-	test [any-function! block!] "Test (predicate) to perform on each value; must take one arg if a function; block implied arg is named ."
+	test [any-function! block!] "Test (predicate) to perform on each value; must take one arg if a function; block implied arg is named .(dot)."
 	/only "Return a single block of values that pass the test"
 	; Getting only the things that don't pass a test means applying NOT
 	; to the test and using /ONLY. Applying NOT means making a lambda.
@@ -898,6 +900,34 @@ res: map-ex [1 2 3 a b c #d #e #f] :form
 res: map-ex [1 2 3 a b c #d #e #f] func [v i] [reduce [i v]]
 res: map-ex [1 2 3 a b c #d #e #f] func [v i s] [reduce [i v s]]
 
+;!! Douglas Crockford makes a nice point that including the series arg
+;	in the callback is "an invitation to modify the array being
+;	processed" and shouldn't be included. Given that FN doesn't
+;	otherwise know the series, it *can't* modify it unless we give it
+;	to them, or the caller makes it available some other way (which is
+;	much worse). The question is whether there are enough cases where
+;	FN *needs* access to the series to justify the safety concerns.
+;	There's no way to enforce read-only access to a series, but that's
+;	an interesting idea. It can be useful, at times, to peek into the
+;	series around where you are, and potentially quite empowering.
+map-ex: func [	; collect-each
+	"Evaluates a function for all values in a series and returns the results."
+	series [series!]
+	fn [any-function!] "Function to perform on each value; called with value, index, series args"
+	/only
+][
+	collect [
+		repeat i length? series [
+			keep/:only fn series/:i :i :series
+		]
+	]
+]
+res: map-ex [1 2 3 a b c #d #e #f] :form
+res: map-ex [1 2 3 a b c #d #e #f] func [v i] [reduce [i v]]
+res: map-ex [1 2 3 a b c #d #e #f] func [v i s] [reduce [i v s]]
+res: map-ex/only [1 2 3 a b c #d #e #f] func [v i s] [reduce [i v s]]
+
+
 ;-------------------------------------------------------------------------------
 
 default: func [
@@ -1084,7 +1114,7 @@ map-each: func [
 	body [block!]
 	/local tmp
 ] [
-	res: copy []
+	res: make block! length? data
 	foreach :word data [
 		if value? set/any 'tmp do body [append/only res :tmp]
 	]
@@ -1152,12 +1182,12 @@ map-each x [1 2 3 4 5] [either even? x [break] [x]]
 ; As it is in Red right now.
 apply: func [
     "Apply a function to a block of arguments." 
-    fn [any-function!] "Function to apply" 
+    fn [any-function! word! path!] "Function to apply" 
     args [block!] "Arguments for function" 
     /only "Use arg values as-is, do not reduce the block"
 ][
     args: either only [copy args] [reduce args] 
-    do head insert args :fn
+    do head insert/only args :fn		; we copied args because we insert into it here.
 ]
 
 apply: function [
@@ -1606,7 +1636,7 @@ parse/case "Abc" var
 ;---
 
 ; Anonymous vars experiment
-transform: function [input [block!] output [block!][
+transform: function [input [block!] output [block!]][
 	vals: copy []
 	vals: parse input [
 	]
@@ -1679,4 +1709,7 @@ twice :add-3 7
 ; Wolfram pure func syntax lets you put a # placeholder for an arg
 ; in a func call, which is then replaced by each value in the series
 ; being mapped over.
+
+;-------------------------------------------------------------------------------
+
 
