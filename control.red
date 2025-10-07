@@ -409,7 +409,7 @@ for-map: function [
 ]
 blk: [a: 1 b: 2 c: 3]
 for-map m [print [key value]]
-m: #(a: 11 b: 22 c: 33)
+m: #[a: 11 b: 22 c: 33]
 for-map m [print [key value]]
 for-map m [
 	print [key value]
