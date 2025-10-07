@@ -3,7 +3,7 @@ Red []
 ; limits
 bounds: func [
 	"Returns upper and lower bounds as a block of two values"
-	[catch throw]
+	;[catch throw]
 	input [block! number! char! money! time! tuple!]  ; a.k.a. spec
 		"A single value is the upper bound; a tuple defines both bounds; a block is a dialected value."
 	/local a b val val= a-val= b-val= ab-val= keywords
@@ -46,16 +46,16 @@ bounds: func [
 
 range: func [
 	"Returns a block containing a range of values"
-	[catch]
+	;[catch]
 	bound [block! number! char! money! time! tuple!]
 		"A single value is the upper bound; a tuple defines both bounds; a block is a dialected value."
-	   ;{IMPORTANT: Don't use an upper char! bound of #"ÿ" (255)--for now
+	   ;{IMPORTANT: Don't use an upper char! bound of #"?" (255)--for now
 	   ; FOR can't handle it and it causes an endless loop.}
 	/skip step
 	/local start end val
 	  ; start/end instead of low/high because they may range high to low.
 ] [
-	if bound = #"ÿ" [throw make error! join [script invalid-arg] :bound]
+	if bound = #"?" [throw make error! join [script invalid-arg] :bound]
 	set [start end] bounds bound
 	; If from > b, and they specify a negative step, we don't catch that
 	; and do anything smart, they just get an empty block back.
@@ -96,7 +96,7 @@ range: function [
 ;-------------------------------------------------------------------------------
 
 
-thru': func [start end body][
-	for v start end [do body]]
-]
-thru: make op! :thru'
+;thru': func [start end body][
+;	for v start end [do body]
+;]
+;thru: make op! :thru'

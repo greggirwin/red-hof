@@ -3,18 +3,18 @@ Red []
 
 ;-------------------------------------------------------------------------------
 ;-- This section was my first thought at how to approach things. The funcs
-;   need to maintain state, but I wasn't sure I wanted to use objects.
+;   need to maintain state but I wasn't sure I wanted to use objects.
 
 ; Aggregators are functions that allows you to compute certain results
-; over unbounded series. They generally take one argument, and maintain
+; over unbounded series. They generally take one argument and maintain
 ; state with each successive call. In the future we'll have real closures
 ; in REBOL.
-; Added the /query refinement, but not sure I like using RETURN for it.
+; Added the /query refinement but not sure I like using RETURN for it.
 ; Maybe an "if not query [change-state]" approach is better. Either way
 ; it's a bit ugly for funcs that take values because you still have to
 ; pass a none value even when using /query.
 
-; An advantage to functions is that their inner state is protected, at
+; An advantage to functions is that their inner state is protected at
 ; the expense of having to use something like /query to get the result.
 
 aggregation-ctx: context [
@@ -72,7 +72,7 @@ aggregation-ctx: context [
 			state: [(any [init-val 0.0])] 
 			if query [return state/1]
 			;if init  [state/1: (init-val)]
-			; Which is nicer here, path notation, or CHANGE? I like CHANGE.
+			; Which is nicer here path notation or CHANGE? I like CHANGE.
 			;   if value < state/1 [state/1: value]
 			; Or always changing?
 			;   change state min state/1 value
@@ -112,17 +112,17 @@ aggregation-ctx: context [
 		]
 	]
 
-	; scalar expression, lower bound, upper bound, step value
+	; scalar expression lower bound upper bound step value
 	;
-	; A linear frequency distribution, sized by the specified range, of
+	; A linear frequency distribution sized by the specified range of
 	; the values of the specified expressions. Increments the value in
 	; the highest bucket that is less than the specified expression.
 	set 'make-linear-quantize-aggregator func [
 		lbound ubound step /local limits
 	][
-		; Do we want to do this, or just use FOR or WHILE/UNTIL directly?
-		; This allocates space, which would be bad for large ranges, but
-		; linear quantize shouldn't be used that way anyway, right?
+		; Do we want to do this or just use FOR or WHILE/UNTIL directly?
+		; This allocates space which would be bad for large ranges but
+		; linear quantize shouldn't be used that way anyway right?
 		limits: range/skip reduce [lbound ubound] step
 		func [value /query /local state n lim] compose/deep [
 			lim: [(copy limits)]
@@ -152,7 +152,7 @@ aggregation-ctx: context [
 ;   Read RESULT to get the current aggregate value
 
 aggregator-proto: context [
-	tags:  'aggregator  ; Could call it 'type, but want to standardize on 'tags for general use
+	tags:  'aggregator  ; Could call it 'type but want to standardize on 'tags for general use
 	state:  none        ; Replace this with your aggregator state data structure
 	update: does [print "TBD: Replace this func with aggregator update logic"]
 	result: does [state]
@@ -170,11 +170,11 @@ aggregator?: func [object [object!]] [
 ]
 
 ; Should we set result to: divide state/sum state/count ?
-; And should we always set result on updates, for all aggregator types?
+; And should we always set result on updates for all aggregator types?
 ; Setting it on updates doesn't guarantee that somebody won't change it
 ; and produce bogus results. We need to protect it for that. And calc'ing
 ; the result on every update means more overhead if they only read it
-; occasionally. But, what it also gives us is the result as a return
+; occasionally. But what it also gives us is the result as a return
 ; value for updates.
 set 'make-avg-aggregator does [
 	make aggregator-proto [
@@ -195,18 +195,18 @@ set 'make-count-aggregator does [
 	]
 ]
 
-; scalar expression, lower bound, upper bound, step value
+; scalar expression lower bound upper bound step value
 ;
-; A linear frequency distribution, sized by the specified range, of
+; A linear frequency distribution sized by the specified range of
 ; the values of the specified expressions. Increments the value in
 ; the highest bucket that is less than the specified expression.
 set 'make-linear-quantize-aggregator func [
 	lbound ubound step /local limits
 ][
 	make aggregator-proto [
-		; Do we want to do this, or just use FOR or WHILE/UNTIL directly?
-		; This allocates space, which would be bad for large ranges, but
-		; linear quantize shouldn't be used that way anyway, right?
+		; Do we want to do this or just use FOR or WHILE/UNTIL directly?
+		; This allocates space which would be bad for large ranges but
+		; linear quantize shouldn't be used that way anyway right?
 		limits: range/skip reduce [lbound ubound] step
 		state:  array/initial length? limits 0
 		update: func [value /local n] [
@@ -259,15 +259,15 @@ set 'make-moving-avg-aggregator func [
 		update: func [value] [
 			; Our count is always our subset size
 			state/count: size
-			; We could just keep a single last-val, rather than using
+			; We could just keep a single last-val rather than using
 			; state/data/1 here. The reason I am keeping a block of
 			; values for state/data is for debugging and analysis.
 			state/sum: state/sum - state/data/1 + value
-			; Replace the oldest value, which is at the current first series
+			; Replace the oldest value which is at the current first series
 			; position. Then step the series forward one. Reset to the head
 			; when we reach the tail. It doesn't matter what order they come
-			; in, because we can use HEAD during analysis to see where our
-			; starting point is in the data block, knowing that we wrap.
+			; in because we can use HEAD during analysis to see where our
+			; starting point is in the data block knowing that we wrap.
 			state/data/1: value
 			state/data: next state/data
 			if tail? state/data [state/data: head state/data]
@@ -285,7 +285,7 @@ set 'make-product-aggregator does [
 ]
 
 ; Power of 2 distribution quanitzer.
-; Should, this be generalized beyond powers of 2?
+; Should this be generalized beyond powers of 2?
 set 'make-quantize-aggregator has [size] [
 	make aggregator-proto [
 		size:   48  ; 48 slots = a range up to 2 ** 48 - 1 (256 TB).
@@ -365,12 +365,12 @@ aggr-sum: func [
 
 ; Reactive Aggregators
 
-; Use deep reactors, because `state` will often be a block.
-; Using `is` for the result MUST be done in new objects, not inherited from
+; Use deep reactors because `state` will often be a block.
+; Using `is` for the result MUST be done in new objects not inherited from
 ; the aggregator-proto.
 
 aggregator-proto: make deep-reactor! [
-	tags:  'aggregator  ; Could call it 'type, but want to standardize on 'tags for general use
+	tags:  'aggregator  ; Could call it 'type but want to standardize on 'tags for general use
 	state:  none        ; Replace this with your aggregator state data structure
 	update: does [print "TBD: Replace this func with aggregator update logic"]
 	result: does [print "TBD: Replace this func with `is` reactor body"]
@@ -391,7 +391,7 @@ aggregator?: func [object [object!]] [
 set 'make-avg-aggregator does [
 	make aggregator-proto [
 		state: copy [count 0 sum 0.0]
-		result: is [divide state/sum state/count]
+		relate result: [divide state/sum state/count]
 		update: func [value] [
 			state/count: state/count + 1
 			state/sum: state/sum + value
@@ -407,7 +407,7 @@ aa/result
 set 'make-count-aggregator does [
 	make aggregator-proto [
 		state: 0
-		result: is [state]
+		relate result: [state]
 		update: does [state: state + 1]
 	]
 ]
@@ -420,7 +420,7 @@ ca/result
 set 'make-sum-aggregator does [
 	make aggregator-proto [
 		state: 0.0
-		result: is [state]
+		relate result: [state]
 		update: func [value] [state: state + value]
 	]
 ]
@@ -432,18 +432,19 @@ sa/result
 
 ;-------------------------------------------------------------------------------
 
-; What if we make a multi-aggregator. That is, one that stores multiple
+; What if we make a multi-aggregator. That is one that stores multiple
 ; aggregate values that can later be queried. The inner funcs could 
-; even be user defined. It just means storing more fields, avoiding name
-; collisions, and defining an spec for user funcs.
-; This is, of course, very wasteful for count aggregates. And the more
-; aggregates you and, and the more complex they are, the more you waste
-; in the simple cases. So you could make the constructor smart, using
+; even be user defined. It just means storing more fields avoiding name
+; collisions and defining an spec for user funcs.
+; This is of course very wasteful for count aggregates. And the more
+; aggregates you and and the more complex they are the more you waste
+; in the simple cases. So you could make the constructor smart using
 ; tags as keys for what to include.
 
+; If we don't need extensibility, this is quick, easy, and more efficient.
 make-multi-aggregator: func [tags] [
 	make aggregator-proto compose/deep [
-		tags:  ['aggregator (tags)]  ; Could call it 'type, but want to standardize on 'tags for general use
+		tags:  ['aggregator (tags)]  ; Could call it 'type but want to standardize on 'tags for general use
 		state: [
 			count:	0
 			min:	0
@@ -463,35 +464,179 @@ make-multi-aggregator: func [tags] [
 	]
 ]
 
-; https://github.com/graphite-project/carbon/blob/master/lib/carbon/aggregator/rules.py
-;def percentile(factor):
-;  def func(values):
-;    if values:
-;      values = sorted(values)
-;      rank = factor * (len(values) - 1)
-;      rank_left = int(floor(rank))			round/floor
-;      rank_right = int(ceil(rank))			round/ceiling
-;
-;      if rank_left == rank_right:
-;        return values[rank_left]
-;      else:
-;        return values[rank_left] * (rank_right - rank) + values[rank_right] * (rank - rank_left)
-;
-;  return func
-;
-;
-;AGGREGATION_METHODS = {
-;  'sum': sum,
-;  'avg': avg,
-;  'min': min,
-;  'max': max,
-;  'p50': percentile(0.50),
-;  'p75': percentile(0.75),
-;  'p80': percentile(0.80),
-;  'p90': percentile(0.90),
-;  'p95': percentile(0.95),
-;  'p99': percentile(0.99),
-;  'p999': percentile(0.999),
-;  'count': count,
-;}
+;-------------------------------------------------------------------------------
+
+aggregator-proto: object [
+	tags:  'aggregator  ; Could call it 'type but want to standardize on 'tags for general use
+;	state: #[]
+;		count:	0
+;		min:	0
+;		max:	0
+;		sum:	0
+;		avg:	0
+;	
+;	funcs: to map! reduce [
+;		'count func [a][add a 1]
+;		'min :min
+;		'max :max
+;		'sum :add
+;		'avg func [a b][divide state/sum state/count]
+;	]
+	state: #[]
+	funcs: #[]
+	include: func [
+		"Add a new aggregate handler; returns none, making no change, if name already exists."
+		name [word!] "To replace an existing name, remove it first."
+		fn   [function! native! routine! action!] "Two arity func that takes current state/key and new value, or single arity taking state/key."
+		/init value "Starting value for the aggregate."
+	][
+		either find funcs name [none][
+			state/:name: any [value 0]
+			funcs/:name: :fn
+		]
+	]
+	remove: func [name [word!]][
+		remove/key state name
+		remove/key funcs name
+	]
+	update: update: func [value [number!]][
+		foreach [key fn] funcs [
+			state/:key: funcs/:key state/:key value
+		]
+		print mold state
+		() ; return unset or state? Copying state each update will be heavy.
+	]
+	result: does [copy state]
+	; Include default aggregators
+	(
+		foreach [name fn] reduce [
+			'count func [a][add a 1]
+			'min :min
+			'max :max
+			'sum :add
+			'avg func [a b][divide state/sum state/count]
+		][include name :fn]
+	)
+]
+agg-p: :aggregator-proto
+agg-p/include/init 'product :multiply 1
+print mold agg-p
+;agg-p/update 0	; zeros product aggregate forever
+agg-p/update 1
+agg-p/update 5
+agg-p/update 100
+agg-p/update -50
+
+
+;-------------------------------------------------------------------------------
+
+aggregator-proto: object [
+	tags:  'aggregator  ; Could call it 'type but want to standardize on 'tags for general use
+	state: #[]
+	funcs: #[]
+	include: func [
+		"Add a new aggregate handler; returns none, making no change, if name already exists."
+		name [word!] "To replace an existing name, remove it first."
+		fn   [function!] "Two arity func that takes current state/key and new value, or single arity taking state/key."
+	][
+		either find funcs name [none][
+			state/:name: name
+			funcs/:name: :fn
+		]
+	]
+	remove: func [name [word!]][
+		remove/key state name
+		remove/key funcs name
+	]
+	update: update: func [value [number!]][
+		foreach [key fn] funcs [
+			state/:key: funcs/:key state/:key value
+		]
+	]
+	result: does [copy state]
+]
+make-default-aggregator: function [][
+	res: make aggregator-proto []
+	;res/include 'count func [a b][add a 1]
+	res/include 'count func [a][add a 1]
+	;res/include 'count :incr
+	res/include 'min :min
+	res/include 'max :max
+	res/include 'sum :add
+	; This requires both sum and count to be included.
+	res/include 'avg func [a b][divide state/sum state/count]
+	res
+]
+
+make-multi-aggregator: func [tags] [
+	make aggregator-proto compose/deep [
+		tags:  ['aggregator (tags)]  ; Could call it 'type but want to standardize on 'tags for general use
+		update: func [value [number!]][
+			state/count: state/count + 1
+			state/min: min state/min value 
+			state/max: max state/max value
+			state/sum: state/sum + value
+			state/avg: state/sum / state/count
+			
+		]
+		result: does [copy state]
+	]
+]
+
+;-------------------------------------------------------------------------------
+
+e.g.: :comment
+
+percentile-rank: function [
+	"Return the percentile rank of a value given a dataset for comparison."
+	val
+	values [block! hash! vector!]   ;"Must be pre-sorted."
+][
+	values: sort copy values
+	p: binary-search values val
+	case [
+		p = -1 [p: 0]
+		negative? p [p: absolute p]
+	]
+	if p > length? values [p: length? values]
+	round/to to percent! max 0 min 100 (p / length? values) 0.01%
+]
+e.g. [
+	values: [6 12 13 17 17 18 20 23 24 24 25 26 27 27 30 32 33]
+	foreach val [-10 0 1 5 6 17 18 19 27 32 32.5 33 100 1'000][
+		print [val tab percentile-rank val values]
+	]
+]
+
+percentile: function [
+	factor [percent!] "0% to 100%."
+	values [block! hash! vector!]   ;"Must be pre-sorted."
+][
+;	if percent? factor [
+;		factor: to float! 100 * factor		; convert to something we can use as a series index
+;	]
+	values: sort copy values
+	rank: factor * length? values
+	left:  round/to/floor   rank 1
+	right: round/to/ceiling rank 1
+	res: either left = right [values/:left][
+		add (values/:left * (right - rank)) (values/:right * (rank - left))
+	]
+	print [factor tab rank left right tab res]
+	res
+]
+e.g. [
+	values: [4 8 15 16 23 42]
+	;factors: [1000% 100% 99.9% 99% 95% 90% 85% 80% 75% 50% 37.5% 0% -1%]
+	factors: [99.9% 99% 95% 90% 85% 80% 75% 50%]
+	foreach pct factors [
+		percentile pct values
+	]
+	print mold values
+	foreach val [0 4 6 8 14.99 15 15.5 16 16.01 22 22.99 23 23.01 42] [
+		print [tab val percentile-rank val values]
+	]
+]
+
+;-------------------------------------------------------------------------------
 
